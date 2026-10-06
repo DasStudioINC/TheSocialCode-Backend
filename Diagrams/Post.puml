@@ -1,0 +1,52 @@
+@startuml
+title Post Context
+skinparam class {
+     BackgroundColor<<Aggregate Root>> #FFE0B2
+      BorderColor<<Aggregate Root>> #E65100
+
+      BackgroundColor<<Entity>> #C8E6C9
+      BorderColor<<Entity>> #2E7D32
+
+      BackgroundColor<<Value Object>> #B3E5FC
+      BorderColor<<Value Object>> #01579B
+}
+
+class Post <<Aggregate Root>>{
+    - post_id : PostId
+    - username_of_poster : PosterName
+    - number_of_posts : PostNumberCount
+    - file_path : String
+}
+
+class PostId <<Value Object>> {
+    - post_id : UUID
+}
+
+class PosterName <<Value Object>> {
+    - username_of_poster : String
+}
+
+class PostNumberCount <<Value Object>> {
+    - number_of_posts : int
+}
+
+Post *-- PostNumberCount
+Post *-- PosterName
+Post *-- PostId
+
+legend right
+  |= Color |= Element |
+  |<#FFE0B2> | **Aggregate Root** |
+  |<#C8E6C9> | **Entity** |
+  |<#B3E5FC> | **Value Object** |
+  |<#F5F5F5> | **Enumeration** |
+  --
+  <color:#E65100>Aggregate Root:</color>
+  The entry point to an aggregate and the only
+  object referenced from outside the aggregate.
+  --
+  <color:#01579B>Value Object:</color>
+  An immutable object defined by its values,
+  without an independent identity.
+endlegend
+@enduml
