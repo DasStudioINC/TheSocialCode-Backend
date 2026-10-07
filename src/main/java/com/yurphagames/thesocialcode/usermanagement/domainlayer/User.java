@@ -53,4 +53,6 @@ public class User {
         this.creationDate = LocalDate.now();
         this.accountData = data;
     }
+
+
 }

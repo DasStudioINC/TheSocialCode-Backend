@@ -9,15 +9,18 @@
 <h3 class="head">FILE SIZE LIMIT SOURCES:</h3>
 1: https://stackoverflow.com/questions/34177873/max-limit-of-multipartfile-in-spring-boot
 
-<h3 class="head">STORAGE BUCKETS INTEGRATION SOURCES:</h3>
+<h3 class="head">UNIQUE CONSTRAINTS SOURCE </h3>
+1: https://www.baeldung.com/jpa-unique-constraints
 
-[Cloudflare] <br>
-1: https://blog.boottechsolutions.com/2026/04/07/how-to-upload-files-to-cloudflare-r2-with-spring-boot-fast-scalable-guide/
+<h3 class="head">RESPONSE ENTITY SOURCES:</h3>
+1: https://www.baeldung.com/spring-response-entity
 
-[Backblaze] <br>
-2: https://www.backblaze.com/docs/en/cloud-storage-get-started-with-a-backblaze-integration <br>
-3: https://www.backblaze.com/docs/cloud-storage-use-java-to-create-an-application <br>
-4: https://www.backblaze.com/apidocs/s3-list-objects-v2 <br>
+<h3 class="head">INPUT STREAM RESOURCE SOURCES:</h3>
+1: https://stackoverflow.com/questions/40575775/can-i-use-inputstreamresource-to-return-an-image-as-bytearray-into-a-spring-appl
+2: https://stackoverflow.com/questions/4602060/how-can-i-get-mime-type-of-an-inputstream-of-a-file-that-is-being-uploaded
+
+<h3 class="head">MULTIPART FILE SOURCES:</h3>
+1: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/multipart/MultipartFile.html
 
 
 <h3 class="head">HOW TO CREATE A SERVER</h3>

@@ -1,8 +1,8 @@
 package com.yurphagames.thesocialcode.usermanagement.presentationlayer.controller;
 
-import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
-import com.yurphagames.thesocialcode.usermanagement.domainlayer.UserHandle;
+import com.yurphagames.thesocialcode.usermanagement.domainlayer.*;
 import com.yurphagames.thesocialcode.usermanagement.infrastructurelayer.repository.UserRepository;
+import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
 import lombok.Getter;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +12,11 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 public class UserController {
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserController(UserRepository repo){
+    public UserController(UserRepository repo, UserService service){
         this.userRepository = repo;
+        this.userService = service;
     }
 
     @GetMapping
@@ -32,13 +34,13 @@ public class UserController {
 
     @GetMapping("/handle/{handle}")
     public User getUserByHandle(@PathVariable String handle){
-        return userRepository.findByUserHandle_userHandle(handle);
+        return userService.getUserByUserHandle(handle);
     }
 
     //Adding a user
     @PostMapping
     public User createUser(@RequestBody User user){
-        return userRepository.save(user);
+        return userService.newUser(user);
     }
 
 }
