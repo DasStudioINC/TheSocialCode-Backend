@@ -9,7 +9,7 @@ import lombok.Setter;
 @Table(name = "post",
         uniqueConstraints = {
             @UniqueConstraint(
-                    columnNames = {"username", "post_number"}
+                    columnNames = {"userhandle", "post_number"}
             )
         }
 )
@@ -21,8 +21,8 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String username;
+    @Column(name = "userhandle", nullable = false)
+    private String userHandle;
 
     @Column(name = "post_number", nullable = false)
     private int postNumber;
@@ -30,9 +30,9 @@ public class Post {
     @Column(unique = true)
     private String path;
 
-    public Post(int postNumber, String username, String path){
+    public Post(int postNumber, String userHandle, String path){
         this.postNumber = postNumber;
-        this.username = username;
+        this.userHandle = userHandle;
         this.path = path;
     }
 

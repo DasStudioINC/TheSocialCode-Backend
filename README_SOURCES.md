@@ -21,7 +21,7 @@
 
 <h3 class="head">MULTIPART FILE SOURCES:</h3>
 1: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/multipart/MultipartFile.html
-
+2: https://medium.com/techpanel/multipartfile-with-springboot-d4901ee3e77d
 
 <h3 class="head">HOW TO CREATE A SERVER</h3>
 <p> winget install --id Cloudflare.cloudflared</p>

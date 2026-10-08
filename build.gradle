@@ -36,9 +36,9 @@ dependencies {
 	implementation 'org.projectlombok:lombok:1.18.20'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
-	// for the backblaze
-	implementation platform('software.amazon.awssdk:bom:2.25.50')
-	implementation 'software.amazon.awssdk:s3'
+	implementation 'net.bramp.ffmpeg:ffmpeg:0.8.0'
+
+
 }
 
 tasks.named('test') {

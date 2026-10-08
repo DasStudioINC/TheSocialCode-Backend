@@ -2,18 +2,29 @@ package com.yurphagames.thesocialcode.postmanagement.presentationlayer.service;
 
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import com.yurphagames.thesocialcode.postmanagement.infrustructurelayer.repository.PostRepository;
+import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
+import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
+
+
+import net.bramp.ffmpeg.FFmpeg;
+import net.bramp.ffmpeg.FFmpegExecutor;
+import net.bramp.ffmpeg.FFprobe;
+import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,10 +32,12 @@ import java.util.List;
 @Service
 public class PostService implements PostServiceInterface{
     private final PostRepository postRepository;
+    private final UserService userService;
     private final String STORAGE_PATH = "uploads";
     private int searchCountAmount = 4;
-    public PostService(PostRepository postRepository){
+    public PostService(PostRepository postRepository, UserService userService){
         this.postRepository = postRepository;
+        this.userService = userService;
     }
 
 
@@ -47,6 +60,7 @@ public class PostService implements PostServiceInterface{
         try{
             Path root = Paths.get(STORAGE_PATH).toAbsolutePath().normalize();
             Path postPath = root.resolve(path).normalize();
+
 
             if(!postPath.startsWith(root))
                 throw new ResponseStatusException(
@@ -103,13 +117,20 @@ public class PostService implements PostServiceInterface{
     }
 
     @Override
-    public List<Post> getPostByParams(String username, String postname, int index) {
-        username = username.trim();
+    public List<Post> getPostByParams(String userhandle, String postname, int index) {
+        userhandle = userhandle.trim();
         postname = postname.trim();
 
-        if(username.isEmpty()){
+        // first I use userhandle instead of username since
+        // userhandle is unique to a user and username
+        // is not because my system has a id, a userHandle, and
+        // a userName, a user has both id and userHandle as
+        // unique values no other user can have that
+        // but multiple users can have the same username
 
-            // This is a check to see if both the username & postname is empty
+        if(userhandle.isEmpty()){
+
+            // This is a check to see if both the userhandle & postname is empty
             // so there is no indexable way to find any posts
             // so we will just return the posts at that index
 
@@ -129,38 +150,38 @@ public class PostService implements PostServiceInterface{
 
         }
 
-        // Now if we made it here that means that a username
+        // Now if we made it here that means that a userhandle
         // has been given therefore we can use that as
         // a search parameter
 
-        List<Post> postsByusername =
-                findByUsername(username, index);
+        List<Post> postsByuserhandle =
+                findByUserHandle(userhandle, index);
 
         // I need to check also if the postname is
         // empty also since my process can have
-        // username = empty, postname = empty
-        // username = not empty, postname = empty
-        // username = empty, postname = not empty,
-        // username = not empty, postname = not empty
+        // userhandle = empty, postname = empty
+        // userhandle = not empty, postname = empty
+        // userhandle = empty, postname = not empty,
+        // userhandle = not empty, postname = not empty
 
         // So with that said I need to return right away
         // since there is no postname added in.
         // The returned results will only be filtered by
-        // the username
+        // the userhandle
 
         if(postname.isEmpty())
-            return postsByusername;
+            return postsByuserhandle;
 
 
         // Now if we made it here that means
-        // that both the username and postname
+        // that both the userhandle and postname
         // are not empty so what we got to do now
         // is filter out the posts from the user with
-        // that username which does not use that
+        // that userhandle which does not use that
         // postname
 
         String finalPostname1 = postname;
-        return postsByusername.stream()
+        return postsByuserhandle.stream()
                 .filter(post ->
                         getFileName(post.getPath())
                                 .equals(finalPostname1)
@@ -174,14 +195,14 @@ public class PostService implements PostServiceInterface{
     }
 
     @Override
-    public List<Post> findByUsername(String username, int index) {
+    public List<Post> findByUserHandle(String userhandle, int index) {
         // first we need to get all the posts
         List<Post> posts = getAll();
         // Then we need to filter the posts to only
-        // be with the paramenter username
+        // be with the paramenter userHandle
 
         List<Post> filteredposts = posts.stream().filter(post ->
-                post.getUsername().equals(username)
+                post.getUserHandle().equals(userhandle)
         ).toList();
 
         return convertPostsIntoSegments(filteredposts).get(index);
@@ -195,15 +216,18 @@ public class PostService implements PostServiceInterface{
 
     private HashMap<Integer,List<Post>> convertPostsIntoSegments(List<Post> all){
         HashMap<Integer, List<Post>> segmented = new HashMap<Integer, List<Post>>();
+        all = new ArrayList<>(all);
         while(true){
 
             ArrayList<Post> posts = new ArrayList<>();
             for(int i = 0; i < searchCountAmount - 1; i++){
-                posts.add(all.get(i));
+
                 if(i > all.size() - 1)
                     break;
+
+                posts.add(all.get(i));
             }
-            segmented.put(segmented.size() + 1, new ArrayList<Post>());
+            segmented.put(segmented.size() + 1, posts);
             all.removeAll(posts);
 
             if(all.isEmpty())
@@ -288,6 +312,148 @@ public class PostService implements PostServiceInterface{
         int dot = fileName.lastIndexOf(".");
 
         return fileName.substring(dot + 1);
+    }
+
+    public void upload(MultipartFile file, String userhandle) throws IOException {
+        try{
+
+            if(userhandle.isEmpty() || userhandle == null)
+                throw new IOException("userhandle cannot be empty");
+
+            User user;
+
+            try{
+                user = userService.getUserByUserHandle(userhandle);
+            }catch (RuntimeException e){
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User could not be found");
+            }
+
+
+            if(file.isEmpty())
+                throw new IOException("Empty File");
+
+            // we need to add a postcount to the user so that
+            // it can be represented later properly
+            // We add +1 after since the original postcount is nto that
+            // anymore but +1 of it
+            int postNumber = user.getAccountData().getPostCount() + 1;
+
+            // We need to either create a folder in the
+            // storage root for that user if he hasn't already
+            // had one since we only create it once they post their
+            // first post to reduce usage of storage.
+            // And if it is created we do nothing but get the
+            // reference to where it is located.
+
+            Path folder = Paths.get(STORAGE_PATH).resolve(userhandle).normalize();
+            if(!Files.exists(folder))
+                Files.createDirectories(folder);
+
+            // Now we need to check if the file is a video
+            // because we need to do some compression
+            // on it to allow the upload to be smaller than
+            // what it is inputted as.
+            String org_filename = file.getOriginalFilename();
+
+            Path finalPath = folder.resolve(org_filename);
+            if(isVideoFile(org_filename)){
+
+                // Get the extension of the video to
+                // keep the compress result correct.
+                String extension = getExtension(org_filename);
+
+                // Now we need to create a temp file
+                // this file will be used to edit the file
+                // and we need a temp output
+                // this will allow us to make it so
+                // that if the compressed file
+                // is actually larger than the
+                // original file than we wont
+                // replace the file to it.
+
+                Path tempIn = Files.createTempFile("in_", "." + extension);
+                Path tempOut = Files.createTempFile("out_", "." + extension);
+                try{
+                    try(InputStream inputStream = file.getInputStream()){
+                        Files.copy(inputStream, tempIn, StandardCopyOption.REPLACE_EXISTING);
+                    }
+
+                    compress(tempIn, tempOut);
+
+                    // This is the check for seeing if the compression
+                    // actually helped to make it smaller
+                    if(file.getSize() > Files.size(tempOut)){
+                        Files.copy(tempOut, finalPath, StandardCopyOption.REPLACE_EXISTING);
+                    }else{
+                        Files.copy(tempIn, finalPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }finally {
+                    Files.deleteIfExists(tempIn);
+                    Files.deleteIfExists(tempOut);
+                }
+            }else{
+                // Now this is for normal files like
+                // images, texts, scripts
+
+                Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            SavePost(postNumber, userhandle, org_filename, user);
+
+        } catch (Exception e){
+            throw new IOException("Store exception");
+        }
+    }
+
+
+
+
+    private boolean isVideoFile(String fileName) {
+
+        String lower =
+                fileName.toLowerCase();
+
+        return lower.endsWith(".mp4")
+                || lower.endsWith(".mov")
+                || lower.endsWith(".mkv")
+                || lower.endsWith(".webm")
+                || lower.endsWith(".avi");
+    }
+
+
+    private void SavePost(int postNumber, String userHandle,String org_name, User user){
+
+        try{
+            Path path = Paths.get(userHandle, org_name);
+            Post post = new Post(postNumber, userHandle, path.toString());
+            postRepository.save(post);
+            user.getAccountData().setPostCount(postNumber);
+            userService.save(user);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not upload the file");
+        }
+
+    }
+
+    private void compress(Path in, Path out) throws Exception{
+        // Create instances of the FFmpeg tools that I need to
+        // use to create a compression system
+        FFmpeg ffmpeg = new FFmpeg("C:/ffmpeg/bin/ffmpeg.exe");
+        FFprobe ffprobe = new FFprobe("C:/ffmpeg/bin/ffprobe.exe");
+
+        FFmpegBuilder builder = new FFmpegBuilder()
+                .setInput(in.toString())
+                .overrideOutputFiles(true)
+                .addOutput(out.toString())
+                .setVideoCodec("libx264")
+                .addExtraArgs("-crf", "23")
+                .addExtraArgs("-preset", "medium")
+                .setAudioCodec("aac")
+                .setAudioBitRate(128_000)
+                .done();
+
+        FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
+        executor.createJob(builder).run();
     }
 }
 

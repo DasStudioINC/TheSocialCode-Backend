@@ -6,21 +6,21 @@ import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.Us
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/posts")
 public class PostController {
     private final PostService postService;
-    private final UserService userService;
-    public PostController(PostService postService, UserService userService){
+    public PostController(PostService postService){
         this.postService = postService;
-        this.userService = userService;
     }
 
 
@@ -33,11 +33,11 @@ public class PostController {
 
     @GetMapping("/search")
     public List<Post> searchPosts(
-            @RequestParam(required = false, defaultValue = "") String username,
+            @RequestParam(required = false, defaultValue = "") String userhandle,
             @RequestParam(required = false, defaultValue = "") String postname,
             @RequestParam(required = true, defaultValue = "1") int index
     ){
-        return postService.getPostByParams(username, postname, index);
+        return postService.getPostByParams(userhandle, postname, index);
     }
 
 
@@ -47,13 +47,13 @@ public class PostController {
     }
 
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> upload(
-            @RequestParam("post") MultipartFile post,
-            @RequestParam("username") String username
-    )
-    {
-
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> uploadFile(
+            @RequestPart(value = "file") MultipartFile file,
+            @RequestParam("userhandle") String userhandle
+    ) throws IOException {
+        postService.upload(file, userhandle);
+        return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
 
