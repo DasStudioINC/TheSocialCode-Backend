@@ -1,6 +1,7 @@
 package com.yurphagames.thesocialcode.postmanagement.presentationlayer.service;
 
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
+import com.yurphagames.thesocialcode.postmanagement.domainlayer.PostDirectories;
 import com.yurphagames.thesocialcode.postmanagement.infrustructurelayer.repository.PostRepository;
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
 import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
@@ -28,6 +29,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService implements PostServiceInterface{
@@ -49,7 +51,7 @@ public class PostService implements PostServiceInterface{
                                 "Post not found"
                         ));
 
-        String path = post.getPath();
+        String path = post.getPostDirectories().getPostPath();
 
         if(path == null || path.trim().isEmpty())
             throw new ResponseStatusException(
@@ -108,6 +110,8 @@ public class PostService implements PostServiceInterface{
             );
         }
     }
+    
+    
 
 
 
@@ -144,7 +148,7 @@ public class PostService implements PostServiceInterface{
             String finalPostname = postname;
             return convertPostsIntoSegments(getAll()).get(index)
                     .stream().filter(post ->
-                            getFileName(post.getPath())
+                            getFileName(post.getPostDirectories().getPostPath())
                                     .equals(finalPostname)
                     ).toList();
 
@@ -180,10 +184,11 @@ public class PostService implements PostServiceInterface{
         // that userhandle which does not use that
         // postname
 
+        System.out.println("\n\n\n\n\nMade it in to the last place\n\n\n\n\n\n" + postname +"\n" + postsByuserhandle.size() +"\n" + getFileName("uploads\\helldog\\post#1\\my_video_2.mp3\\my_video_2.mp3"));
         String finalPostname1 = postname;
         return postsByuserhandle.stream()
                 .filter(post ->
-                        getFileName(post.getPath())
+                        getFileName(post.getPostDirectories().getPostPath())
                                 .equals(finalPostname1)
                         ).toList();
 
@@ -238,10 +243,11 @@ public class PostService implements PostServiceInterface{
     }
 
     private String getFileName(String path){
-        if(path.isEmpty() || path == null)
+        if(path == null || path.isEmpty())
             return  "";
 
-        return path.replace("\\", "/").substring(path.lastIndexOf("/") + 1);
+        path = path.replace("\\", "/");
+        return path.substring(path.lastIndexOf("/") + 1);
     }
 
     private String getContentType(String postName) {
@@ -355,7 +361,11 @@ public class PostService implements PostServiceInterface{
             // what it is inputted as.
             String org_filename = file.getOriginalFilename();
 
-            Path finalPath = folder.resolve(org_filename);
+            Path posterPath = folder.resolve("post#" + postNumber);
+            if(!Files.exists(posterPath))
+                Files.createDirectories(posterPath);
+
+            Path finalPath = posterPath.resolve(org_filename);
             if(isVideoFile(org_filename)){
 
                 // Get the extension of the video to
@@ -368,7 +378,7 @@ public class PostService implements PostServiceInterface{
                 // this will allow us to make it so
                 // that if the compressed file
                 // is actually larger than the
-                // original file than we wont
+                // original file than we won't
                 // replace the file to it.
 
                 Path tempIn = Files.createTempFile("in_", "." + extension);
@@ -395,10 +405,16 @@ public class PostService implements PostServiceInterface{
                 // Now this is for normal files like
                 // images, texts, scripts
 
+
                 Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            SavePost(postNumber, userhandle, org_filename, user);
+            // Now create a file for the interactions data like comments
+            Path interactionFile = posterPath.resolve("interaction.txt");
+
+            Files.createFile(interactionFile);
+
+            SavePost(postNumber, userhandle, finalPath.toString(),org_filename, user);
 
         } catch (Exception e){
             throw new IOException("Store exception");
@@ -421,11 +437,13 @@ public class PostService implements PostServiceInterface{
     }
 
 
-    private void SavePost(int postNumber, String userHandle,String org_name, User user){
+    private void SavePost(int postNumber, String userHandle, String folderPath, String org_name, User user){
 
         try{
-            Path path = Paths.get(userHandle, org_name);
-            Post post = new Post(postNumber, userHandle, path.toString());
+            Path pathforpostfile = Paths.get(folderPath, org_name);
+            Path pathforinteractionfile = Paths.get(folderPath, "interaction.txt");
+            PostDirectories paths = new PostDirectories(pathforpostfile.toString(), pathforinteractionfile.toString());
+            Post post = new Post(postNumber, userHandle, paths);
             postRepository.save(post);
             user.getAccountData().setPostCount(postNumber);
             userService.save(user);
@@ -433,6 +451,10 @@ public class PostService implements PostServiceInterface{
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not upload the file");
         }
 
+    }
+
+    public void save(Post post){
+        postRepository.save(post);
     }
 
     private void compress(Path in, Path out) throws Exception{

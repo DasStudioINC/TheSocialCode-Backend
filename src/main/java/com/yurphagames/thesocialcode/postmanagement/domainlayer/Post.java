@@ -27,13 +27,17 @@ public class Post {
     @Column(name = "post_number", nullable = false)
     private int postNumber;
 
-    @Column(unique = true)
-    private String path;
+    @Embedded
+    private PostDirectories postDirectories;
 
-    public Post(int postNumber, String userHandle, String path){
+    @Embedded
+    private PostData postData;
+
+    public Post(int postNumber, String userHandle, PostDirectories postDirectories){
         this.postNumber = postNumber;
         this.userHandle = userHandle;
-        this.path = path;
+        this.postDirectories = postDirectories;
+        this.postData = new PostData();
     }
 
 }
