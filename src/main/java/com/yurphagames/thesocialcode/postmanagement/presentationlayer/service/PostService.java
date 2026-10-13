@@ -42,6 +42,9 @@ public class PostService implements PostServiceInterface{
         this.userService = userService;
     }
 
+    private String convertToNorm(String path){
+        return path.replace("\\", "/");
+    }
 
     public ResponseEntity<InputStreamResource> getById(Long id){
         Post post = postRepository.findById(id)
@@ -52,6 +55,7 @@ public class PostService implements PostServiceInterface{
                         ));
 
         String path = post.getPostDirectories().getPostPath();
+        System.out.println(path);
 
         if(path == null || path.trim().isEmpty())
             throw new ResponseStatusException(
@@ -60,8 +64,8 @@ public class PostService implements PostServiceInterface{
             );
 
         try{
-            Path root = Paths.get(STORAGE_PATH).toAbsolutePath().normalize();
-            Path postPath = root.resolve(path).normalize();
+            Path root = Paths.get(STORAGE_PATH);
+            Path postPath = Paths.get(path).normalize();
 
 
             if(!postPath.startsWith(root))
@@ -416,6 +420,7 @@ public class PostService implements PostServiceInterface{
 
             SavePost(postNumber, userhandle, finalPath.toString(),org_filename, user);
 
+
         } catch (Exception e){
             throw new IOException("Store exception");
         }
@@ -440,7 +445,7 @@ public class PostService implements PostServiceInterface{
     private void SavePost(int postNumber, String userHandle, String folderPath, String org_name, User user){
 
         try{
-            Path pathforpostfile = Paths.get(folderPath, org_name);
+            Path pathforpostfile = Paths.get(folderPath);
             Path pathforinteractionfile = Paths.get(folderPath, "interaction.txt");
             PostDirectories paths = new PostDirectories(pathforpostfile.toString(), pathforinteractionfile.toString());
             Post post = new Post(postNumber, userHandle, paths);

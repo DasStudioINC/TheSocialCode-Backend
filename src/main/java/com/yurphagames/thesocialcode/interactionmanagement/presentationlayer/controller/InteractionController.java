@@ -48,4 +48,15 @@ public class InteractionController {
         return ResponseEntity.ok("Post like task success");
     }
 
+    @PostMapping("/comment")
+    public ResponseEntity<String> comment(
+            @RequestParam String interactedUserHandle,
+            @RequestParam String posterUserHandle,
+            @RequestParam String postName,
+            @RequestParam String comment
+    ){
+        interactionService.Comment(interactedUserHandle, posterUserHandle, postName, comment);
+        return ResponseEntity.ok("Comment task success");
+    }
+
 }

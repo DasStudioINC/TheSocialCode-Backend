@@ -64,6 +64,14 @@ public class Interaction {
         this.content = "";
     }
 
+    public Interaction(String userHandleInteracted, String userHandlePoster, Post post, String comment,InteractionType type){
+        this.userHandleInteracted = userHandleInteracted;
+        this.userHandlePoster = userHandlePoster;
+        this.post = post;
+        this.type = type;
+        this.content = comment;
+    }
+
 
     public int Follow(){
         user.getAccountData().setFollowerCount(user.getAccountData().getFollowerCount() + 1);

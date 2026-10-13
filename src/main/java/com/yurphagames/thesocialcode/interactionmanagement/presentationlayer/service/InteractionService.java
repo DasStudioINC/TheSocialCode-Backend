@@ -127,4 +127,34 @@ public class InteractionService implements InteractionServiceInterface{
         postService.save(post);
         throw new ResponseStatusException(HttpStatus.OK, "Success you disliked the post called (" + Ppostname + ") by poster (" + Puserhandle + ") and relation deleted!");
     }
+
+    public void Comment(String Iuserhandle, String Puserhandle, String Ppostname, String comment){
+
+        Iuserhandle = Iuserhandle.trim();
+        Puserhandle = Puserhandle.trim();
+        Ppostname = Ppostname.trim();
+        comment = comment.trim();
+
+        if(Iuserhandle.isEmpty())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the interactor");
+
+        if(Puserhandle.isEmpty())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the poster");
+
+        if(Ppostname.isEmpty())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a post name");
+
+        if(comment.isEmpty())
+            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "You must give a comment to use this");
+
+
+
+
+        Post post = postService.getPostByParams(Puserhandle, Ppostname, 1).get(0);
+
+        Interaction interaction = new Interaction(Iuserhandle, Puserhandle, post, comment, InteractionType.COMMENT);
+
+        interactionRepository.save(interaction);
+
+    }
 }
