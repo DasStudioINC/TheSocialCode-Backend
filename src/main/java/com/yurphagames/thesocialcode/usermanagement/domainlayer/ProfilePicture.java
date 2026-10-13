@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProfilePicture {
 
-    @Column(name = "profile_picture")
+    @Column(name = "profile_picture", nullable = false, unique = false)
     private String path_to_profile_picture;
 
     public ProfilePicture(String path) {

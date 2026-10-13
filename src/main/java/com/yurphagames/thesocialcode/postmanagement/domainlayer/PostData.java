@@ -17,8 +17,13 @@ public class PostData {
     private int viewCount;
 
 
+
+
     public PostData(int like, int view){
         this.likeCount = like;
         this.viewCount = view;
+
     }
+
+
 }

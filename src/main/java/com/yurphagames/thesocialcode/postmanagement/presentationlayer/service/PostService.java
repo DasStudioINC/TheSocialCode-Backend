@@ -365,6 +365,7 @@ public class PostService implements PostServiceInterface{
             // what it is inputted as.
             String org_filename = file.getOriginalFilename();
 
+
             Path posterPath = folder.resolve("post#" + postNumber);
             if(!Files.exists(posterPath))
                 Files.createDirectories(posterPath);

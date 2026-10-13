@@ -4,8 +4,11 @@ import com.yurphagames.thesocialcode.usermanagement.domainlayer.*;
 import com.yurphagames.thesocialcode.usermanagement.infrastructurelayer.repository.UserRepository;
 import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
 import lombok.Getter;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -41,6 +44,14 @@ public class UserController {
     @PostMapping
     public User createUser(@RequestBody User user){
         return userService.newUser(user);
+    }
+
+    @PutMapping(value = "/handle/{handle}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void setProfile(
+            @PathVariable String handle,
+            @RequestPart(value = "file") MultipartFile file
+    ) throws IOException {
+        userService.setProfile(file, handle);
     }
 
 }
