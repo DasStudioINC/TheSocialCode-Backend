@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "post",
         uniqueConstraints = {
@@ -33,11 +35,15 @@ public class Post {
     @Embedded
     private PostData postData;
 
+    @Column(name = "posted_At", nullable = false, unique = false )
+    private LocalDate postDate;
+
     public Post(int postNumber, String userHandle, PostDirectories postDirectories){
         this.postNumber = postNumber;
         this.userHandle = userHandle;
         this.postDirectories = postDirectories;
         this.postData = new PostData();
+        this.postDate = LocalDate.now();
     }
 
 }

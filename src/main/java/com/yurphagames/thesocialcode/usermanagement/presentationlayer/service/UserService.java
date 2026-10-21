@@ -3,9 +3,13 @@ package com.yurphagames.thesocialcode.usermanagement.presentationlayer.service;
 import com.yurphagames.thesocialcode.postmanagement.presentationlayer.service.PostService;
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.*;
 import com.yurphagames.thesocialcode.usermanagement.infrastructurelayer.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.Setter;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +44,13 @@ public class UserService {
         if(userRepository.findByUserHandle_userHandle(user.getUserHandle().getUserHandle()).isPresent()){
             throw new RuntimeException("User with that handle (" + user.getUserHandle().getUserHandle() + ")  already exits");
         };
+
+
+        user.setAccountData(new AccountData());
+        user.setProfilePicture(new ProfilePicture(null));
+        if(user.getCreationDate() == null){
+            user.setCreationDate(LocalDate.now());
+        }
 
         return userRepository.save(user);
     }
@@ -71,6 +83,7 @@ public class UserService {
             Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
 
             user.getProfilePicture().setPath_to_profile_picture(finalPath.toString());
+            System.out.println("\n\nUSER PROFILE PITURE: " + user.getProfilePicture().getPath_to_profile_picture());
             userRepository.save(user);
         }catch (IOException e){
             throw new IOException("Store exception");
@@ -80,4 +93,53 @@ public class UserService {
     public User save(User user){
         return userRepository.save(user);
     }
+
+    public User Id(Integer id) {
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Could not find User with id : " + id));
+    }
+
+    public List<User> All() {
+        return userRepository.findAll();
+    }
+
+    public User updateUser(User existing){
+        return this.userRepository.save(existing);
+    }
+
+
+    public void deleteById(Integer id){
+        if(!userRepository.existsById(id)) throw new EntityNotFoundException("User not found");
+        this.userRepository.deleteById(id);
+    }
+
+    // User Profile Panel Small
+
+    public ResponseEntity<InputStreamResource> getUserProfile(String handle){
+        User user = this.getUserByUserHandle(handle);
+
+        if(user == null){
+            throw new EntityNotFoundException("User not found");
+        }
+
+        String path = user.getProfilePicture().getPath_to_profile_picture();
+        try{
+            Path profile = Paths.get(path).normalize();
+
+            InputStream input = Files.newInputStream(profile);
+            InputStreamResource resource = new InputStreamResource(input);
+            ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .header("Content-Disposition", "inline; filename=\"profilepic.png\"")
+                    .header("Accept-Ranges", "bytes");
+
+
+            builder.contentLength(Files.size(profile));
+            return builder.body(resource);
+        }catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
 }

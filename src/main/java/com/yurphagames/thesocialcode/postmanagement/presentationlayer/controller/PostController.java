@@ -1,5 +1,6 @@
 package com.yurphagames.thesocialcode.postmanagement.presentationlayer.controller;
 
+import com.yurphagames.thesocialcode.postmanagement.datamappinglayer.PostMapper;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import com.yurphagames.thesocialcode.postmanagement.presentationlayer.service.PostService;
 import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
@@ -19,25 +20,27 @@ import java.util.List;
 @RequestMapping("/api/v1/posts")
 public class PostController {
     private final PostService postService;
-    public PostController(PostService postService){
+    private final PostMapper postMapper;
+    public PostController(PostService postService, PostMapper postMapper){
         this.postService = postService;
+        this.postMapper = postMapper;
     }
 
 
 
 
     @GetMapping
-    public List<Post> getAllPosts(){
-        return postService.getAll();
+    public ResponseEntity getAllPosts(){
+        return ResponseEntity.ok(postMapper.entityToResponseModelList(postService.getAll()));
     }
 
     @GetMapping("/search")
-    public List<Post> searchPosts(
+    public ResponseEntity searchPosts(
             @RequestParam(required = false, defaultValue = "") String userhandle,
             @RequestParam(required = false, defaultValue = "") String postname,
             @RequestParam(required = true, defaultValue = "1") int index
     ){
-        return postService.getPostByParams(userhandle, postname, index);
+        return ResponseEntity.ok(postMapper.entityToResponseModelList(postService.getPostByParams(userhandle, postname, index)));
     }
 
 

@@ -15,14 +15,16 @@ public class PostData {
     private int likeCount;
     @Column(name = "view_count", nullable = false, unique = false)
     private int viewCount;
+    @Column(name = "post_name", nullable = false, unique = false)
+    private String postName;
 
 
 
 
-    public PostData(int like, int view){
+    public PostData(int like, int view, String postName){
         this.likeCount = like;
         this.viewCount = view;
-
+        this.postName = postName;
     }
 
 
