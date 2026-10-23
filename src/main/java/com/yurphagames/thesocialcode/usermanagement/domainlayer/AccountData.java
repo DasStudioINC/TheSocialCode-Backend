@@ -15,4 +15,6 @@ public class AccountData {
     private int followerCount;
     @Column(name = "post_count")
     private int postCount;
+    @Column(name = "literal_post_count")
+    private int literalPostCount;
 }

@@ -15,4 +15,6 @@ public class UserResponseModel {
     private String email;
     private String subscriptionType;
     private String creationDate;
+    private int followerCount;
+    private int postCount;
 }

@@ -23,6 +23,12 @@
 1: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/multipart/MultipartFile.html
 2: https://medium.com/techpanel/multipartfile-with-springboot-d4901ee3e77d
 
+<h3 class="head">CUSTOM DELETE REPOSITORY FIX SOURCES: </h3>
+1: https://stackoverflow.com/questions/76818700/spring-boot-data-jpa-jparepository-transaction-management-on-custom-delete-metho
+
+<h3 class="head">DELETING FILES IN JAVA SOURCES: </h3>
+1: https://stackoverflow.com/questions/20281835/how-to-delete-a-folder-with-files-using-java
+
 <h3 class="head">HOW TO CREATE A SERVER</h3>
 <p> winget install --id Cloudflare.cloudflared</p>
 <p> cloudflared tunnel login</p>

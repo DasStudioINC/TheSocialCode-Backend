@@ -16,6 +16,8 @@ public class PostRequestModel {
     @NotBlank
     private String postName;
 
+
+
     @NotBlank
     private int viewCount;
 

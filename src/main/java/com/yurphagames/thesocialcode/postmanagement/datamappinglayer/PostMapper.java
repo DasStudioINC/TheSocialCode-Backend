@@ -36,6 +36,8 @@ public class PostMapper {
             responseModel.setPostDate(post.getPostDate().format(DATE_FORMAT));
         }
 
+        responseModel.setSearchTitle(post.getSearchTitle());
+
         return responseModel;
 
     }

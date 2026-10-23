@@ -1,5 +1,6 @@
 package com.yurphagames.thesocialcode.postmanagement.presentationlayer.service;
 
+import com.yurphagames.thesocialcode.postmanagement.datamappinglayer.PostMapper;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.PostDirectories;
 import com.yurphagames.thesocialcode.postmanagement.infrustructurelayer.repository.PostRepository;
@@ -7,15 +8,18 @@ import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
 import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -42,8 +46,70 @@ public class PostService implements PostServiceInterface{
         this.userService = userService;
     }
 
-    private String convertToNorm(String path){
-        return path.replace("\\", "/");
+    public ResponseEntity<InputStreamResource> getBysearchTitle(String searchTitle){
+        Post post = postRepository.findBySearchTitle(searchTitle);
+
+        if(post == null) throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Post not found"
+        );
+
+        String path = post.getPostDirectories().getPostPath();
+        System.out.println(path);
+
+        if(path == null || path.trim().isEmpty())
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Post path is empty"
+            );
+
+        try{
+            Path root = Paths.get(STORAGE_PATH);
+            Path postPath = Paths.get(path).normalize();
+
+
+            if(!postPath.startsWith(root))
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "Invalid path"
+                );
+
+            if(!Files.exists(postPath) || !Files.isRegularFile(postPath))
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "File not found"
+                );
+
+            InputStream input = Files.newInputStream(postPath);
+            String postName = getFileName(path);
+            String contentType = getContentType(postName);
+            InputStreamResource resource = new InputStreamResource(input);
+
+            ResponseEntity.BodyBuilder builder =
+                    ResponseEntity.ok()
+                            .contentType(
+                                    MediaType.parseMediaType(contentType)
+                            )
+                            .header(
+                                    "Content-Disposition",
+                                    "inline; filename=\""
+                                            + postName + "\""
+                            );
+
+            builder.contentLength(Files.size(postPath));
+
+            return builder.body(resource);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Could not read file"
+            );
+        }
+
     }
 
     public ResponseEntity<InputStreamResource> getById(Long id){
@@ -94,10 +160,6 @@ public class PostService implements PostServiceInterface{
                                     "Content-Disposition",
                                     "inline; filename=\""
                                     + postName + "\""
-                            )
-                            .header(
-                                    "Accept-Ranges",
-                                    "bytes"
                             );
 
             builder.contentLength(Files.size(postPath));
@@ -115,7 +177,7 @@ public class PostService implements PostServiceInterface{
         }
     }
     
-    
+
 
 
 
@@ -198,10 +260,7 @@ public class PostService implements PostServiceInterface{
 
     }
 
-    @Override
-    public Post findByPath(String path) {
-        return null;
-    }
+
 
     @Override
     public List<Post> findByUserHandle(String userhandle, int index) {
@@ -218,8 +277,8 @@ public class PostService implements PostServiceInterface{
     }
 
     @Override
-    public Post findByUsernameAndPostNumber(String username, int postnumber) {
-        return null;
+    public Post fingBySearchTitle(String searchTitle) {
+        return postRepository.findBySearchTitle(searchTitle);
     }
 
 
@@ -324,7 +383,8 @@ public class PostService implements PostServiceInterface{
         return fileName.substring(dot + 1);
     }
 
-    public void upload(MultipartFile file, String userhandle) throws IOException {
+    public void upload(MultipartFile file, String userhandle, String password) throws IOException {
+
         try{
 
             if(userhandle.isEmpty() || userhandle == null)
@@ -338,6 +398,9 @@ public class PostService implements PostServiceInterface{
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User could not be found");
             }
 
+            if(!user.getUserInfo().getPassword().equals(password))
+                throw new IOException("Invalid password");
+
 
             if(file.isEmpty())
                 throw new IOException("Empty File");
@@ -346,8 +409,8 @@ public class PostService implements PostServiceInterface{
             // it can be represented later properly
             // We add +1 after since the original postcount is nto that
             // anymore but +1 of it
-            int postNumber = user.getAccountData().getPostCount() + 1;
-
+            int postNumber = user.getAccountData().getLiteralPostCount()+ 1;
+            int userPostNumber = user.getAccountData().getPostCount() + 1;
             // We need to either create a folder in the
             // storage root for that user if he hasn't already
             // had one since we only create it once they post their
@@ -369,6 +432,12 @@ public class PostService implements PostServiceInterface{
             Path posterPath = folder.resolve("post#" + postNumber);
             if(!Files.exists(posterPath))
                 Files.createDirectories(posterPath);
+            // Now create a file for the interactions data like comments
+            Path interactionFile = posterPath.resolve("interaction.txt");
+
+            Files.createFile(interactionFile);
+
+            String savedPath = posterPath.toString();
 
             Path finalPath = posterPath.resolve(org_filename);
             if(isVideoFile(org_filename)){
@@ -414,12 +483,9 @@ public class PostService implements PostServiceInterface{
                 Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            // Now create a file for the interactions data like comments
-            Path interactionFile = posterPath.resolve("interaction.txt");
 
-            Files.createFile(interactionFile);
 
-            SavePost(postNumber, userhandle, finalPath.toString(),org_filename, user);
+            SavePost(postNumber, userPostNumber, userhandle, finalPath.toString(),savedPath,org_filename, user);
 
 
         } catch (Exception e){
@@ -443,15 +509,18 @@ public class PostService implements PostServiceInterface{
     }
 
 
-    private void SavePost(int postNumber, String userHandle, String folderPath, String org_name, User user){
+    private void SavePost(int postNumber, int userPostNumber, String userHandle, String folderPath,String savedPath, String org_name, User user){
 
         try{
             Path pathforpostfile = Paths.get(folderPath);
-            Path pathforinteractionfile = Paths.get(folderPath, "interaction.txt");
+            Path pathforinteractionfile = Paths.get(savedPath,"interaction.txt");
             PostDirectories paths = new PostDirectories(pathforpostfile.toString(), pathforinteractionfile.toString());
             Post post = new Post(postNumber, userHandle, paths);
+            post.getPostData().setPostName(org_name);
+            post.generateSearchTitle();
             postRepository.save(post);
-            user.getAccountData().setPostCount(postNumber);
+            user.getAccountData().setPostCount(userPostNumber);
+            user.getAccountData().setLiteralPostCount(postNumber);
             userService.save(user);
         } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not upload the file");
@@ -482,6 +551,38 @@ public class PostService implements PostServiceInterface{
 
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
         executor.createJob(builder).run();
+    }
+
+    public void deleteBySearchTitle(String searchTitle, String password) throws IOException {
+        Post post = postRepository.findBySearchTitle(searchTitle);
+        if(post == null) throw  new EntityNotFoundException("Post not found");
+        User user = userService.getUserByUserHandle(post.getUserHandle());
+        if(user == null) throw new EntityNotFoundException("User not found");
+        if(user.getUserInfo().getPassword().equals(password)){
+            File folder = new File(STORAGE_PATH + "/" + user.getUserHandle().getUserHandle() + "/post#" + post.getPostNumber());
+
+            System.out.println(
+                    "file: " + post.getPostDirectories().getPostPath() + "\n" +
+                            "interaction: " + post.getPostDirectories().getInteractionPath() + "\n" +
+                            "post: " + folder
+            );
+//            Files.delete(Paths.get(post.getPostDirectories().getPostPath()).toAbsolutePath());
+//            Files.delete(Paths.get(post.getPostDirectories().getInteractionPath()).toAbsolutePath());
+//            Files.delete(Paths.get(folder.toURI()).toAbsolutePath());
+            // Fix the method name spelling: deleteRecursively instead of deleteRecursivley
+
+
+            if (folder.exists()) {
+                boolean deleted = FileSystemUtils.deleteRecursively(folder);
+                if (!deleted) {
+                    throw new IOException("Could not delete the post directory.");
+                }
+            }
+            this.postRepository.deleteBySearchTitle(searchTitle);
+            user.getAccountData().setPostCount(user.getAccountData().getPostCount() - 1);
+            userService.save(user);
+
+        }
     }
 }
 

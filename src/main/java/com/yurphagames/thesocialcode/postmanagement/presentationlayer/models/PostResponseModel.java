@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class PostResponseModel {
     private String userHandle;
     private String postName;
+    private String searchTitle;
     private int viewCount;
     private int likeCount;
     private String postDate;

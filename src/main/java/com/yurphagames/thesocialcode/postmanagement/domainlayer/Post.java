@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "post",
@@ -32,6 +33,10 @@ public class Post {
     @Embedded
     private PostDirectories postDirectories;
 
+
+    @Column(name = "searchTitle", nullable = false, unique = true)
+    private String searchTitle;
+
     @Embedded
     private PostData postData;
 
@@ -44,6 +49,19 @@ public class Post {
         this.postDirectories = postDirectories;
         this.postData = new PostData();
         this.postDate = LocalDate.now();
+        this.searchTitle = "";
+    }
+
+    // this creates a unique search index for you to use
+    // it is what will be used to search instead of
+    // the actual id of the internal post id
+    //
+    public void generateSearchTitle() {
+        this.searchTitle = LocalDate.now()
+                .atStartOfDay()
+                .toString()
+                + userHandle + postNumber
+                + UUID.randomUUID().toString().substring(0, 5);
     }
 
 }

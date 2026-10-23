@@ -21,10 +21,12 @@ public class PostData {
 
 
 
+
     public PostData(int like, int view, String postName){
         this.likeCount = like;
         this.viewCount = view;
-        this.postName = postName;
+        this.postName = postName == null ? "Default Post Name" : postName;
+
     }
 
 

@@ -53,6 +53,11 @@ public class UserMapper {
             );
         }
 
+        if(user.getAccountData() != null){
+            responseModel.setFollowerCount(user.getAccountData().getFollowerCount());
+            responseModel.setPostCount(user.getAccountData().getPostCount());
+        }
+
         return responseModel;
     }
 
