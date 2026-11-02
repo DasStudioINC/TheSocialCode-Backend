@@ -1,6 +1,8 @@
 package com.yurphagames.thesocialcode.interactionmanagement.presentationlayer.controller;
 
+import com.yurphagames.thesocialcode.interactionmanagement.datamappinglayer.InteractionMapper;
 import com.yurphagames.thesocialcode.interactionmanagement.domainlayer.Interaction;
+import com.yurphagames.thesocialcode.interactionmanagement.presentationlayer.models.CommentInteractionResponseModel;
 import com.yurphagames.thesocialcode.interactionmanagement.presentationlayer.service.InteractionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +16,22 @@ import java.util.List;
 public class InteractionController {
 
     private final InteractionService interactionService;
-
-    public InteractionController(InteractionService service){
+    private final InteractionMapper mapper;
+    public InteractionController(InteractionService service, InteractionMapper mapper){
         this.interactionService = service;
+        this.mapper = mapper;
     }
 
     @GetMapping
-    public List<Interaction> getAll(){
+    public ResponseEntity<List<CommentInteractionResponseModel>> getAll(){
+      return ResponseEntity.ok(mapper.entityToResponseModelList(interactionService.getAll()));
+    }
 
-       return interactionService.getAll();
+    @GetMapping("/filter")
+    public ResponseEntity<List<CommentInteractionResponseModel>> getAllBySearchTitle(
+            @RequestParam String searchTitle
+    ){
+        return ResponseEntity.ok(mapper.entityToResponseModelList(interactionService.getAllBySearchTitle(searchTitle)));
     }
 
 
@@ -41,9 +50,9 @@ public class InteractionController {
     public ResponseEntity<String> like(
             @RequestParam String interactedUserHandle,
             @RequestParam String posterUserHandle,
-            @RequestParam String postName
+            @RequestParam String searchTitle
     ){
-        interactionService.Like(interactedUserHandle, posterUserHandle, postName);
+        interactionService.Like(interactedUserHandle, posterUserHandle, searchTitle);
 
         return ResponseEntity.ok("Post like task success");
     }
@@ -52,10 +61,10 @@ public class InteractionController {
     public ResponseEntity<String> comment(
             @RequestParam String interactedUserHandle,
             @RequestParam String posterUserHandle,
-            @RequestParam String postName,
+            @RequestParam String searchTitle,
             @RequestParam String comment
     ){
-        interactionService.Comment(interactedUserHandle, posterUserHandle, postName, comment);
+        interactionService.Comment(interactedUserHandle, posterUserHandle, searchTitle, comment);
         return ResponseEntity.ok("Comment task success");
     }
 

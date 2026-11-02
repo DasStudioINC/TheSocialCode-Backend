@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InteractionService implements InteractionServiceInterface{
@@ -26,6 +26,7 @@ public class InteractionService implements InteractionServiceInterface{
         this.postService = postService;
     }
 
+    @Override
     public List<Interaction> getAll(){
         if(interactionRepository.findAll().isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No interactions to get");
@@ -34,6 +35,7 @@ public class InteractionService implements InteractionServiceInterface{
         return interactionRepository.findAll();
     }
 
+    @Override
     public void Follow(String Iuserhandle, String Puserhandle){
         if(Iuserhandle == null || Iuserhandle.isEmpty() || Puserhandle == null || Puserhandle.isEmpty())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must input a userHandle for both interactor and poster");
@@ -85,17 +87,18 @@ public class InteractionService implements InteractionServiceInterface{
         throw new ResponseStatusException(HttpStatus.OK, "Success (You un followed: " + Puserhandle + ") and relation deleted!");
     }
 
-    public void Like(String Iuserhandle, String Puserhandle, String Ppostname){
+    @Override
+    public void Like(String Iuserhandle, String Puserhandle, String PsearchTitle){
         // Even though the method I will call
         // in post service returns a list of posts,
         // You will need to have the parameters for it
         // and those params will indeed return a specific
         // video from that use and that is their
-        // userHandle and their postName
+        // userHandle and their searchTitle
 
         Iuserhandle = Iuserhandle.trim();
         Puserhandle = Puserhandle.trim();
-        Ppostname = Ppostname.trim();
+        PsearchTitle = PsearchTitle.trim();
 
         if(Iuserhandle.isEmpty())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the interactor");
@@ -103,13 +106,13 @@ public class InteractionService implements InteractionServiceInterface{
         if(Puserhandle.isEmpty())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the poster");
 
-        if(Ppostname.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a post name");
+        if(PsearchTitle.isEmpty())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a search Title");
 
 
         Interaction interaction = interactionRepository.findByUserHandleInteractedAndUserHandlePosterAndType(Iuserhandle, Puserhandle, InteractionType.LIKE);
 
-        Post post = postService.getPostByParams(Puserhandle, Ppostname, 1).get(0);
+        Post post = postService.fingBySearchTitle(PsearchTitle);
 
         if(interaction == null){
             // this time I need to get the post not the user
@@ -119,20 +122,21 @@ public class InteractionService implements InteractionServiceInterface{
             interaction.like();
             interactionRepository.save(interaction);
             postService.save(post);
-            throw new ResponseStatusException(HttpStatus.OK, "Success you liked the post called (" + Ppostname + ") by poster (" + Puserhandle + ") and relation created!");
+            throw new ResponseStatusException(HttpStatus.OK, "Success you liked the post called (" + PsearchTitle + ") by poster (" + Puserhandle + ") and relation created!");
         }
 
         interaction.dislike();
         interactionRepository.delete(interaction);
         postService.save(post);
-        throw new ResponseStatusException(HttpStatus.OK, "Success you disliked the post called (" + Ppostname + ") by poster (" + Puserhandle + ") and relation deleted!");
+        throw new ResponseStatusException(HttpStatus.OK, "Success you disliked the post called (" + PsearchTitle + ") by poster (" + Puserhandle + ") and relation deleted!");
     }
 
-    public void Comment(String Iuserhandle, String Puserhandle, String Ppostname, String comment){
+    @Override
+    public void Comment(String Iuserhandle, String Puserhandle, String PsearchTitle, String comment){
 
         Iuserhandle = Iuserhandle.trim();
         Puserhandle = Puserhandle.trim();
-        Ppostname = Ppostname.trim();
+        PsearchTitle = PsearchTitle.trim();
         comment = comment.trim();
 
         if(Iuserhandle.isEmpty())
@@ -141,8 +145,8 @@ public class InteractionService implements InteractionServiceInterface{
         if(Puserhandle.isEmpty())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the poster");
 
-        if(Ppostname.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a post name");
+        if(PsearchTitle.isEmpty())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a search title");
 
         if(comment.isEmpty())
             throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "You must give a comment to use this");
@@ -150,11 +154,29 @@ public class InteractionService implements InteractionServiceInterface{
 
 
 
-        Post post = postService.getPostByParams(Puserhandle, Ppostname, 1).get(0);
+        Post post = postService.fingBySearchTitle(PsearchTitle);
 
         Interaction interaction = new Interaction(Iuserhandle, Puserhandle, post, comment, InteractionType.COMMENT);
 
         interactionRepository.save(interaction);
 
+    }
+
+    @Override
+    public List<Interaction> getAllBySearchTitle(String searchTitle) {
+        if(searchTitle.isEmpty()) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Search Title entered");
+
+        Post post = postService.fingBySearchTitle(searchTitle);
+
+        List<Interaction> refInteraction = this.getAll();
+        List<Interaction> interactions = new ArrayList<>();
+
+        for (Interaction interaction : refInteraction){
+            if(interaction.getPost().getSearchTitle().equals(searchTitle)){
+                interactions.add(interaction);
+            }
+        }
+
+        return interactions;
     }
 }
