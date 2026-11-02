@@ -28,6 +28,9 @@ public class UserRequetsModel {
     @NotBlank
     private String password;
 
+    @NotNull
+    private String description;
+
     @Email
     @NotBlank
     private String email;

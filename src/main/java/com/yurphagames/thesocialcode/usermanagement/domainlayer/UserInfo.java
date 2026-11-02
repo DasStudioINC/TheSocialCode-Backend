@@ -21,6 +21,9 @@ public class UserInfo {
    @Column(name = "last_name")
    private String lastName;
 
+   @Column(name = "description")
+   private String description;
+
    @NotBlank(message = "You must enter a PASSWORD!")
    @Column(name = "password")
    private String password;

@@ -383,7 +383,7 @@ public class PostService implements PostServiceInterface{
         return fileName.substring(dot + 1);
     }
 
-    public void upload(MultipartFile file, String userhandle, String password) throws IOException {
+    public void upload(MultipartFile file, String userhandle, String password, String description) throws IOException {
 
         try{
 
@@ -485,7 +485,7 @@ public class PostService implements PostServiceInterface{
 
 
 
-            SavePost(postNumber, userPostNumber, userhandle, finalPath.toString(),savedPath,org_filename, user);
+            SavePost(postNumber, userPostNumber, userhandle, finalPath.toString(),savedPath,org_filename, user, description);
 
 
         } catch (Exception e){
@@ -509,7 +509,7 @@ public class PostService implements PostServiceInterface{
     }
 
 
-    private void SavePost(int postNumber, int userPostNumber, String userHandle, String folderPath,String savedPath, String org_name, User user){
+    private void SavePost(int postNumber, int userPostNumber, String userHandle, String folderPath,String savedPath, String org_name, User user, String desc){
 
         try{
             Path pathforpostfile = Paths.get(folderPath);
@@ -517,6 +517,7 @@ public class PostService implements PostServiceInterface{
             PostDirectories paths = new PostDirectories(pathforpostfile.toString(), pathforinteractionfile.toString());
             Post post = new Post(postNumber, userHandle, paths);
             post.getPostData().setPostName(org_name);
+            post.getPostData().setDescription(desc);
             post.generateSearchTitle();
             postRepository.save(post);
             user.getAccountData().setPostCount(userPostNumber);

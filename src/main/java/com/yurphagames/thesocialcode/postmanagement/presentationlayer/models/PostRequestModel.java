@@ -1,6 +1,7 @@
 package com.yurphagames.thesocialcode.postmanagement.presentationlayer.models;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,8 @@ public class PostRequestModel {
     private String postName;
 
 
+    @NotNull
+    private String description;
 
     @NotBlank
     private int viewCount;

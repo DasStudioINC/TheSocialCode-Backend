@@ -81,7 +81,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseModel);
     }
 
-    @PutMapping(value = "/handle/{handle}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/profile/set/handle/{handle}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public void setProfile(
             @PathVariable String handle,
             @RequestPart(value = "file") MultipartFile file
@@ -110,6 +110,7 @@ public class UserController {
         }
 
     }
+
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity deleteUser(@PathVariable Integer id){

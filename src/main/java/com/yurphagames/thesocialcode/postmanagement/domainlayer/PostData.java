@@ -18,6 +18,8 @@ public class PostData {
     @Column(name = "post_name", nullable = false, unique = false)
     private String postName;
 
+    @Column(name = "description", nullable = true, unique = false)
+    private String description;
 
 
 

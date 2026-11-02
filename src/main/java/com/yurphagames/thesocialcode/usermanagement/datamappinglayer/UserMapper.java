@@ -41,6 +41,10 @@ public class UserMapper {
             responseModel.setEmail(user.getEmail().getEmail());
         }
 
+        if(user.getUserInfo().getDescription() != null){
+            responseModel.setDescription(user.getUserInfo().getDescription());
+        }
+
         if(user.getSubscriptionType() != null){
             responseModel.setSubscriptionType(
                     user.getSubscriptionType().name()
@@ -78,6 +82,7 @@ public class UserMapper {
         user.setUserInfo(new UserInfo(
                 requetsModel.getFirstName(),
                 requetsModel.getLastName(),
+                requetsModel.getDescription(),
                 requetsModel.getPassword()
         ));
 
@@ -96,6 +101,7 @@ public class UserMapper {
         user.setUserInfo(new UserInfo(
                 requetsModel.getFirstName(),
                 requetsModel.getLastName(),
+                requetsModel.getDescription(),
                 requetsModel.getPassword()
         ));
 

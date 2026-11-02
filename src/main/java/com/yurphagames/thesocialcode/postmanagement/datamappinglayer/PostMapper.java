@@ -30,6 +30,7 @@ public class PostMapper {
             responseModel.setPostName(post.getPostData().getPostName());
         }
 
+        responseModel.setDescription(post.getPostData().getDescription());
         responseModel.setLikeCount(post.getPostData().getLikeCount());
         responseModel.setViewCount(post.getPostData().getViewCount());
         if(post.getPostDate() != null){
