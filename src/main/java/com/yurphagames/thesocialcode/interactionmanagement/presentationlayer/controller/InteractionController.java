@@ -1,13 +1,10 @@
 package com.yurphagames.thesocialcode.interactionmanagement.presentationlayer.controller;
 
 import com.yurphagames.thesocialcode.interactionmanagement.datamappinglayer.InteractionMapper;
-import com.yurphagames.thesocialcode.interactionmanagement.domainlayer.Interaction;
 import com.yurphagames.thesocialcode.interactionmanagement.presentationlayer.models.CommentInteractionResponseModel;
-import com.yurphagames.thesocialcode.interactionmanagement.presentationlayer.service.InteractionService;
-import org.springframework.http.HttpStatus;
+import com.yurphagames.thesocialcode.interactionmanagement.buisinesslogiclayer.service.InteractionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.List;
 

@@ -1,21 +1,16 @@
 package com.yurphagames.thesocialcode.postmanagement.presentationlayer.controller;
 
 import com.yurphagames.thesocialcode.postmanagement.datamappinglayer.PostMapper;
-import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
-import com.yurphagames.thesocialcode.postmanagement.presentationlayer.service.PostService;
-import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
+import com.yurphagames.thesocialcode.postmanagement.buisnesslogiclayer.service.PostService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/posts")

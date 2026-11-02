@@ -1,4 +1,4 @@
-package com.yurphagames.thesocialcode.postmanagement.presentationlayer.service;
+package com.yurphagames.thesocialcode.postmanagement.buisnesslogiclayer.service;
 
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import org.springframework.core.io.InputStreamResource;

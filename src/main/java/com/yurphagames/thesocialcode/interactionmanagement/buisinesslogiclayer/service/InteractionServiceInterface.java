@@ -1,4 +1,4 @@
-package com.yurphagames.thesocialcode.interactionmanagement.presentationlayer.service;
+package com.yurphagames.thesocialcode.interactionmanagement.buisinesslogiclayer.service;
 
 import com.yurphagames.thesocialcode.interactionmanagement.domainlayer.Interaction;
 

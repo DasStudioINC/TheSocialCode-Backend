@@ -1,4 +1,4 @@
-package com.yurphagames.thesocialcode.usermanagement.presentationlayer.service;
+package com.yurphagames.thesocialcode.usermanagement.businesslogiclayer.service;
 
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
 import org.springframework.core.io.InputStreamResource;

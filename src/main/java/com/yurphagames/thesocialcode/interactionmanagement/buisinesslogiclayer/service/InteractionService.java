@@ -1,12 +1,12 @@
-package com.yurphagames.thesocialcode.interactionmanagement.presentationlayer.service;
+package com.yurphagames.thesocialcode.interactionmanagement.buisinesslogiclayer.service;
 
 import com.yurphagames.thesocialcode.interactionmanagement.domainlayer.Interaction;
 import com.yurphagames.thesocialcode.interactionmanagement.domainlayer.InteractionType;
 import com.yurphagames.thesocialcode.interactionmanagement.infrustructurelayer.repository.InteractionRepository;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
-import com.yurphagames.thesocialcode.postmanagement.presentationlayer.service.PostService;
+import com.yurphagames.thesocialcode.postmanagement.buisnesslogiclayer.service.PostService;
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
-import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
+import com.yurphagames.thesocialcode.usermanagement.businesslogiclayer.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;

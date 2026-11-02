@@ -1,10 +1,10 @@
-package com.yurphagames.thesocialcode.postmanagement.presentationlayer.service;
+package com.yurphagames.thesocialcode.postmanagement.buisnesslogiclayer.service;
 
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.PostDirectories;
 import com.yurphagames.thesocialcode.postmanagement.infrustructurelayer.repository.PostRepository;
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
-import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
+import com.yurphagames.thesocialcode.usermanagement.businesslogiclayer.service.UserService;
 
 
 import jakarta.persistence.EntityNotFoundException;

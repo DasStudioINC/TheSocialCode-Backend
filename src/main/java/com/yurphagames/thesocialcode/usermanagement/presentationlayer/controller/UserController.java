@@ -2,17 +2,14 @@ package com.yurphagames.thesocialcode.usermanagement.presentationlayer.controlle
 
 import com.yurphagames.thesocialcode.usermanagement.datamappinglayer.UserMapper;
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.*;
-import com.yurphagames.thesocialcode.usermanagement.infrastructurelayer.repository.UserRepository;
 import com.yurphagames.thesocialcode.usermanagement.presentationlayer.models.UserRequetsModel;
 import com.yurphagames.thesocialcode.usermanagement.presentationlayer.models.UserResponseModel;
-import com.yurphagames.thesocialcode.usermanagement.presentationlayer.service.UserService;
+import com.yurphagames.thesocialcode.usermanagement.businesslogiclayer.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.Getter;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
