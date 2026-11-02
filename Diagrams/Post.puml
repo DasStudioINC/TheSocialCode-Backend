@@ -12,27 +12,31 @@ skinparam class {
 }
 
 class Post <<Aggregate Root>>{
-    - post_id : PostId
-    - username_of_poster : PosterName
-    - number_of_posts : PostNumberCount
-    - file_path : String
+    - id : Long
+    - userHandle : String
+    - postNumber : int
+    - postDirectories : PostDirectories
+    - searchTitle : String
+    - postData : PostData
+    - poastDate : LocalDate
 }
 
-class PostId <<Value Object>> {
-    - post_id : UUID
+class PostData <<Value Object>>{
+    - likeCount : int
+    - viewCount : int
+    - postName : String
+    - description : String
 }
 
-class PosterName <<Value Object>> {
-    - username_of_poster : String
+class PostDirectories <<Value Object>>{
+    - postPath : String
+    - interactionPath : String
 }
 
-class PostNumberCount <<Value Object>> {
-    - number_of_posts : int
-}
 
-Post *-- PostNumberCount
-Post *-- PosterName
-Post *-- PostId
+Post *-- PostData
+Post *-- PostDirectories
+
 
 legend right
   |= Color |= Element |

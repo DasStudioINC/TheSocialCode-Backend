@@ -16,7 +16,8 @@ class User <<Aggregate Root>>{
     -user_handle : UserHandle
     -user_name : UserName
     -user_profile_picture : ProfilePicture
-    -user_security_info : UserInfo
+    -email : EmailAddress
+    -userInfo : UserInfo
     -user_account_data : AccountData
     -user_creation_date : CreationDate
     -user_subscription_type : SubscriptionType
@@ -34,6 +35,7 @@ class UserInfo <<Value Object>> {
     - first_name : String
     - last_name : String
     - password : String
+    - description : String
     ---
     + FullName() : String
 }
@@ -49,6 +51,11 @@ class CreationDate <<Value Object>>{
 class AccountData <<Value Object>> {
     - follower_count : int
     - post_count : int
+    - literalPostCount : int
+}
+
+class EmailAddress <<Value Object>> {
+    email : String
 }
 
 enum SubscriptionType{
@@ -63,6 +70,7 @@ User *-- CreationDate
 User *-- UserInfo
 User *-- ProfilePicture
 User *-- AccountData
+User *-- EmailAddress
 
 legend right
   |= Color |= Element |

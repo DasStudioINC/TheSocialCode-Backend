@@ -14,6 +14,10 @@ skinparam class {
 class Interaction <<Aggregate Root>>{
     -user_userName : UserUserName
     -interaction_userName : InteractionUserName
+    - content : String
+    - user : User
+    - post : Post
+    - type : InteractionType
     ---
     +follow() : int
     +unfollow() : int
@@ -23,16 +27,14 @@ class Interaction <<Aggregate Root>>{
     +download() : String
 }
 
-class UserUserName <<Value Object>> {
-    -user_userName : String
+enum InteractionType {
+    COMMENT
+    FOLLOW
+    LIKE
 }
 
-class InteractionUserName <<Value Object>>{
-    -interaction_userName : String
-}
 
-Interaction *-- UserUserName
-Interaction *-- InteractionUserName
+Interaction *-- InteractionType
 
 legend right
   |= Color |= Element |
