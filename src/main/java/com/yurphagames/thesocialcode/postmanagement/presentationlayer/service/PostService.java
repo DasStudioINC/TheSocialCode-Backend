@@ -1,6 +1,5 @@
 package com.yurphagames.thesocialcode.postmanagement.presentationlayer.service;
 
-import com.yurphagames.thesocialcode.postmanagement.datamappinglayer.PostMapper;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.PostDirectories;
 import com.yurphagames.thesocialcode.postmanagement.infrustructurelayer.repository.PostRepository;
@@ -13,7 +12,6 @@ import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
-import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,7 +31,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PostService implements PostServiceInterface{
@@ -46,6 +43,7 @@ public class PostService implements PostServiceInterface{
         this.userService = userService;
     }
 
+    @Override
     public ResponseEntity<InputStreamResource> getBysearchTitle(String searchTitle){
         Post post = postRepository.findBySearchTitle(searchTitle);
 
@@ -112,6 +110,7 @@ public class PostService implements PostServiceInterface{
 
     }
 
+    @Override
     public ResponseEntity<InputStreamResource> getById(Long id){
         Post post = postRepository.findById(id)
                 .orElseThrow(() ->
@@ -383,6 +382,7 @@ public class PostService implements PostServiceInterface{
         return fileName.substring(dot + 1);
     }
 
+    @Override
     public void upload(MultipartFile file, String userhandle, String password, String description) throws IOException {
 
         try{
@@ -509,6 +509,7 @@ public class PostService implements PostServiceInterface{
     }
 
 
+
     private void SavePost(int postNumber, int userPostNumber, String userHandle, String folderPath,String savedPath, String org_name, User user, String desc){
 
         try{
@@ -529,6 +530,7 @@ public class PostService implements PostServiceInterface{
 
     }
 
+    @Override
     public void save(Post post){
         postRepository.save(post);
     }
@@ -554,6 +556,7 @@ public class PostService implements PostServiceInterface{
         executor.createJob(builder).run();
     }
 
+    @Override
     public void deleteBySearchTitle(String searchTitle, String password) throws IOException {
         Post post = postRepository.findBySearchTitle(searchTitle);
         if(post == null) throw  new EntityNotFoundException("Post not found");
