@@ -24,7 +24,7 @@ public class InteractionController {
       return ResponseEntity.ok(mapper.entityToResponseModelList(interactionService.getAll()));
     }
 
-    @GetMapping("/filter")
+    @GetMapping("/filter/comments")
     public ResponseEntity<List<CommentInteractionResponseModel>> getAllBySearchTitle(
             @RequestParam String searchTitle
     ){

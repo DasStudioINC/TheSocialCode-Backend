@@ -25,5 +25,7 @@ public interface UserServiceInterface {
 
     void deleteById(Integer id);
 
+    void deleteByUserHandle(String userhandle);
+
     ResponseEntity<InputStreamResource> getUserProfile(String handle);
 }

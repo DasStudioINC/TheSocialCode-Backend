@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUserHandle_userHandle(String userHandle);
+    void deleteByUserHandle(String userHandle);
+    void existsByUserHandle(String userHandle);
 }

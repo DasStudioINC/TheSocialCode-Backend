@@ -119,4 +119,14 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/handle/{handle}")
+    public ResponseEntity deleteUserByHandle(@PathVariable String handle){
+        try{
+            userService.deleteByUserHandle(handle);
+            return ResponseEntity.noContent().build();
+        }catch(EntityNotFoundException e){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

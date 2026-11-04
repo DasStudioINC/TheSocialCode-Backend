@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserServiceInterface{
@@ -114,6 +115,13 @@ public class UserService implements UserServiceInterface{
     public void deleteById(Integer id){
         if(!userRepository.existsById(id)) throw new EntityNotFoundException("User not found");
         this.userRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteByUserHandle(String userhandle) {
+        Optional<User> user = userRepository.findByUserHandle_userHandle(userhandle);
+        if(user.isEmpty()) throw new EntityNotFoundException("User not found");
+        deleteById(user.get().getId());
     }
 
     // User Profile Panel Small

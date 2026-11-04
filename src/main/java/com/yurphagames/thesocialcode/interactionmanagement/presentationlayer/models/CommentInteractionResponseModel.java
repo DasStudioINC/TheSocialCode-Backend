@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CommentInteractionResponseModel {
     private InteractionType type;
-    private String searchTitle;
     private String content;
     private String interactedUserhandle;
     private String posterUserhandle;

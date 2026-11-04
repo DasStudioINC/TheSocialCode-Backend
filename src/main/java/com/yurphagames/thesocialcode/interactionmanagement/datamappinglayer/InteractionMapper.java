@@ -35,9 +35,6 @@ public class InteractionMapper {
             responseModel.setContent(interaction.getContent());
         }
 
-        if(interaction.getPost() != null){
-            responseModel.setSearchTitle(interaction.getPost().getSearchTitle());
-        }
 
 
         return responseModel;

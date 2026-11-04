@@ -67,8 +67,8 @@ public class InteractionService implements InteractionServiceInterface{
             // So we can create one and execute the addition
             // of the following count
 
-            interaction = new Interaction(Iuserhandle, Puserhandle,Puser, InteractionType.FOLLOW);
-            interaction.Follow();
+            interaction = new Interaction(Iuserhandle, Puserhandle, InteractionType.FOLLOW);
+            Puser.getAccountData().setFollowerCount(Puser.getAccountData().getFollowerCount() + 1);
             interactionRepository.save(interaction);
             userService.save(Puser);
 
@@ -81,7 +81,7 @@ public class InteractionService implements InteractionServiceInterface{
         // that user and delete that relation
         // to allow a future refollow
 
-        interaction.UnFollow();
+        Puser.getAccountData().setFollowerCount(Math.max( Puser.getAccountData().getFollowerCount() - 1, 0));
         interactionRepository.delete(interaction);
         userService.save(Puser);
         throw new ResponseStatusException(HttpStatus.OK, "Success (You un followed: " + Puserhandle + ") and relation deleted!");
@@ -117,15 +117,15 @@ public class InteractionService implements InteractionServiceInterface{
         if(interaction == null){
             // this time I need to get the post not the user
 
-            interaction = new Interaction(Iuserhandle, Puserhandle, post, InteractionType.LIKE);
+            interaction = new Interaction(Iuserhandle, Puserhandle, InteractionType.LIKE);
 
-            interaction.like();
+            post.getPostData().setLikeCount(post.getPostData().getLikeCount() + 1);
             interactionRepository.save(interaction);
             postService.save(post);
             throw new ResponseStatusException(HttpStatus.OK, "Success you liked the post called (" + PsearchTitle + ") by poster (" + Puserhandle + ") and relation created!");
         }
 
-        interaction.dislike();
+        post.getPostData().setLikeCount(Math.max(post.getPostData().getLikeCount() - 1, 0));
         interactionRepository.delete(interaction);
         postService.save(post);
         throw new ResponseStatusException(HttpStatus.OK, "Success you disliked the post called (" + PsearchTitle + ") by poster (" + Puserhandle + ") and relation deleted!");
@@ -156,7 +156,7 @@ public class InteractionService implements InteractionServiceInterface{
 
         Post post = postService.fingBySearchTitle(PsearchTitle);
 
-        Interaction interaction = new Interaction(Iuserhandle, Puserhandle, post, comment, InteractionType.COMMENT);
+        Interaction interaction = new Interaction(Iuserhandle, Puserhandle, comment, InteractionType.COMMENT);
 
         interactionRepository.save(interaction);
 
@@ -167,12 +167,13 @@ public class InteractionService implements InteractionServiceInterface{
         if(searchTitle.isEmpty()) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Search Title entered");
 
         Post post = postService.fingBySearchTitle(searchTitle);
+        String userHandle = post.getUserHandle();
 
         List<Interaction> refInteraction = this.getAll();
         List<Interaction> interactions = new ArrayList<>();
 
         for (Interaction interaction : refInteraction){
-            if(interaction.getPost().getSearchTitle().equals(searchTitle)){
+            if(interaction.getUserHandlePoster().equals(userHandle) && interaction.getType() == InteractionType.COMMENT){
                 interactions.add(interaction);
             }
         }
