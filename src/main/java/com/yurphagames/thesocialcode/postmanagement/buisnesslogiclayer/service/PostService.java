@@ -3,6 +3,7 @@ package com.yurphagames.thesocialcode.postmanagement.buisnesslogiclayer.service;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.PostDirectories;
 import com.yurphagames.thesocialcode.postmanagement.infrustructurelayer.repository.PostRepository;
+import com.yurphagames.thesocialcode.usermanagement.domainlayer.SubscriptionType;
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
 import com.yurphagames.thesocialcode.usermanagement.businesslogiclayer.service.UserService;
 
@@ -385,112 +386,124 @@ public class PostService implements PostServiceInterface{
     @Override
     public void upload(MultipartFile file, String userhandle, String password, String description) throws IOException {
 
+        if(userhandle.isEmpty() || userhandle == null)
+            throw new IOException("userhandle cannot be empty");
+
+        User user;
+
         try{
-
-            if(userhandle.isEmpty() || userhandle == null)
-                throw new IOException("userhandle cannot be empty");
-
-            User user;
-
-            try{
-                user = userService.getUserByUserHandle(userhandle);
-            }catch (RuntimeException e){
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User could not be found");
-            }
-
-            if(!user.getUserInfo().getPassword().equals(password))
-                throw new IOException("Invalid password");
-
-
-            if(file.isEmpty())
-                throw new IOException("Empty File");
-
-            // we need to add a postcount to the user so that
-            // it can be represented later properly
-            // We add +1 after since the original postcount is nto that
-            // anymore but +1 of it
-            int postNumber = user.getAccountData().getLiteralPostCount()+ 1;
-            int userPostNumber = user.getAccountData().getPostCount() + 1;
-            // We need to either create a folder in the
-            // storage root for that user if he hasn't already
-            // had one since we only create it once they post their
-            // first post to reduce usage of storage.
-            // And if it is created we do nothing but get the
-            // reference to where it is located.
-
-            Path folder = Paths.get(STORAGE_PATH).resolve(userhandle).normalize();
-            if(!Files.exists(folder))
-                Files.createDirectories(folder);
-
-            // Now we need to check if the file is a video
-            // because we need to do some compression
-            // on it to allow the upload to be smaller than
-            // what it is inputted as.
-            String org_filename = file.getOriginalFilename();
-
-
-            Path posterPath = folder.resolve("post#" + postNumber);
-            if(!Files.exists(posterPath))
-                Files.createDirectories(posterPath);
-            // Now create a file for the interactions data like comments
-            Path interactionFile = posterPath.resolve("interaction.txt");
-
-            Files.createFile(interactionFile);
-
-            String savedPath = posterPath.toString();
-
-            Path finalPath = posterPath.resolve(org_filename);
-            if(isVideoFile(org_filename)){
-
-                // Get the extension of the video to
-                // keep the compress result correct.
-                String extension = getExtension(org_filename);
-
-                // Now we need to create a temp file
-                // this file will be used to edit the file
-                // and we need a temp output
-                // this will allow us to make it so
-                // that if the compressed file
-                // is actually larger than the
-                // original file than we won't
-                // replace the file to it.
-
-                Path tempIn = Files.createTempFile("in_", "." + extension);
-                Path tempOut = Files.createTempFile("out_", "." + extension);
-                try{
-                    try(InputStream inputStream = file.getInputStream()){
-                        Files.copy(inputStream, tempIn, StandardCopyOption.REPLACE_EXISTING);
-                    }
-
-                    compress(tempIn, tempOut);
-
-                    // This is the check for seeing if the compression
-                    // actually helped to make it smaller
-                    if(file.getSize() > Files.size(tempOut)){
-                        Files.copy(tempOut, finalPath, StandardCopyOption.REPLACE_EXISTING);
-                    }else{
-                        Files.copy(tempIn, finalPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }finally {
-                    Files.deleteIfExists(tempIn);
-                    Files.deleteIfExists(tempOut);
-                }
-            }else{
-                // Now this is for normal files like
-                // images, texts, scripts
-
-
-                Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-
-
-            SavePost(postNumber, userPostNumber, userhandle, finalPath.toString(),savedPath,org_filename, user, description);
-
-
-        } catch (Exception e){
-            throw new IOException("Store exception");
+            user = userService.getUserByUserHandle(userhandle);
+        }catch (RuntimeException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User could not be found");
         }
+
+        if(user.getSubscriptionType() == SubscriptionType.BASIC){
+
+            double bytes = file.getSize();
+            double kilobytes = (bytes / 1024);
+            double megabytes = (kilobytes / 1024);
+            if(megabytes > 10){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You Do Not Have The Correct Subscription To Upload A File Bigger Than 10 mb");
+            }
+        }else{
+            double bytes = file.getSize();
+            double kilobytes = (bytes / 1024);
+            double megabytes = (kilobytes / 1024);
+            if(megabytes > 40){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You Cannot Upload a file bigger than 40 mb on The Max Subscription");
+            }
+        }
+        if(!user.getUserInfo().getPassword().equals(password))
+            throw new IOException("Invalid password");
+
+
+        if(file.isEmpty())
+            throw new IOException("Empty File");
+
+        // we need to add a postcount to the user so that
+        // it can be represented later properly
+        // We add +1 after since the original postcount is nto that
+        // anymore but +1 of it
+        int postNumber = user.getAccountData().getLiteralPostCount()+ 1;
+        int userPostNumber = user.getAccountData().getPostCount() + 1;
+        // We need to either create a folder in the
+        // storage root for that user if he hasn't already
+        // had one since we only create it once they post their
+        // first post to reduce usage of storage.
+        // And if it is created we do nothing but get the
+        // reference to where it is located.
+
+        Path folder = Paths.get(STORAGE_PATH).resolve(userhandle).normalize();
+        if(!Files.exists(folder))
+            Files.createDirectories(folder);
+
+        // Now we need to check if the file is a video
+        // because we need to do some compression
+        // on it to allow the upload to be smaller than
+        // what it is inputted as.
+        String org_filename = file.getOriginalFilename();
+
+
+        Path posterPath = folder.resolve("post#" + postNumber);
+        if(!Files.exists(posterPath))
+            Files.createDirectories(posterPath);
+        // Now create a file for the interactions data like comments
+        Path interactionFile = posterPath.resolve("interaction.txt");
+
+        Files.createFile(interactionFile);
+
+        String savedPath = posterPath.toString();
+
+        Path finalPath = posterPath.resolve(org_filename);
+        if(isVideoFile(org_filename)){
+
+            // Get the extension of the video to
+            // keep the compress result correct.
+            String extension = getExtension(org_filename);
+
+            // Now we need to create a temp file
+            // this file will be used to edit the file
+            // and we need a temp output
+            // this will allow us to make it so
+            // that if the compressed file
+            // is actually larger than the
+            // original file than we won't
+            // replace the file to it.
+
+            Path tempIn = Files.createTempFile("in_", "." + extension);
+            Path tempOut = Files.createTempFile("out_", "." + extension);
+            try{
+                try(InputStream inputStream = file.getInputStream()){
+                    Files.copy(inputStream, tempIn, StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                compress(tempIn, tempOut);
+
+                // This is the check for seeing if the compression
+                // actually helped to make it smaller
+                if(file.getSize() > Files.size(tempOut)){
+                    Files.copy(tempOut, finalPath, StandardCopyOption.REPLACE_EXISTING);
+                }else{
+                    Files.copy(tempIn, finalPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                Files.deleteIfExists(tempIn);
+                Files.deleteIfExists(tempOut);
+            }
+        }else{
+            // Now this is for normal files like
+            // images, texts, scripts
+
+
+            Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+
+
+        SavePost(postNumber, userPostNumber, userhandle, finalPath.toString(),savedPath,org_filename, user, description);
+
     }
 
 

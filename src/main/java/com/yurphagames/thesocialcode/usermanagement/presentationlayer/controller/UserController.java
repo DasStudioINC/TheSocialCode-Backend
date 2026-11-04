@@ -62,7 +62,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/handle/{handle}/picture")
+    @GetMapping("/profile/get/handle/{handle}")
     public ResponseEntity<InputStreamResource> getUserProfile(@PathVariable String handle){
        return userService.getUserProfile(handle);
     }

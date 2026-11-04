@@ -1,4 +1,3 @@
-
 -- Users
 
 INSERT INTO users (user_handle, profile_picture, user_name, first_name, last_name, description, password, subscription_type, created_at, email, follower_count, post_count, literal_post_count)

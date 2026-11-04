@@ -67,7 +67,11 @@ public class PostController {
             @RequestParam("password") String password,
             @RequestParam("description") String description
     ) throws IOException {
-        postService.upload(file, userhandle, password, description);
+        try {
+            postService.upload(file, userhandle, password, description);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
