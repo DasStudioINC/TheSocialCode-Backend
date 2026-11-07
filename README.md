@@ -13,7 +13,7 @@ you must use [tsc-db.yurphagames.net/api/v1]
 Endpoints: 
 
 
-User:
+USER:
 
 | Endpoint                                     | What it's for                                            |
 |:---------------------------------------------|:---------------------------------------------------------|
@@ -29,3 +29,19 @@ User:
 | `/api/v1/users/profile/set/handle/{handle} ` | Updates The user with that handle to put a profile       |
 | DELETE                                       |
 | `/api/v1/users/handle/{handle} `             | Deletes The user with that handle                        |
+
+
+POST:
+
+| Endpoint                                                        | What it's for                                                |
+|:----------------------------------------------------------------|:-------------------------------------------------------------|
+| GET                                                             |
+| `/api/v1/posts`                                                 | Returns All posts                                            |
+| `/api/v1/posts/filter?userhandle=&postname=&index=  `           | Returns The posts or post data with the information inserted |
+| `/api/v1/posts/search/{searchTitle}/post `                      | Returns The post file with that search Title                 |
+| POST                                                            |
+| `/api/v1/posts/upload?file=&userhandle=&password=&description=` | Creates a new post                                           |
+| PUT                                                             |
+| `/api/v1/posts/update/searchTitle/{searchTitle}/post `          | Updates The post with that searchTitle                       |
+| DELETE                                                          |
+| `/api/v1/posts/delete?searchTitle= `                            | Deletes The post with that searchTitle                       |

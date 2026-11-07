@@ -2,6 +2,12 @@ package com.yurphagames.thesocialcode.postmanagement.presentationlayer.controlle
 
 import com.yurphagames.thesocialcode.postmanagement.datamappinglayer.PostMapper;
 import com.yurphagames.thesocialcode.postmanagement.buisnesslogiclayer.service.PostService;
+import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
+import com.yurphagames.thesocialcode.postmanagement.presentationlayer.models.PostRequestModel;
+import com.yurphagames.thesocialcode.postmanagement.presentationlayer.models.PostResponseModel;
+import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
+import com.yurphagames.thesocialcode.usermanagement.presentationlayer.models.UserRequetsModel;
+import com.yurphagames.thesocialcode.usermanagement.presentationlayer.models.UserResponseModel;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -64,11 +70,10 @@ public class PostController {
     public ResponseEntity<String> uploadFile(
             @RequestPart(value = "file") MultipartFile file,
             @RequestParam("userhandle") String userhandle,
-            @RequestParam("password") String password,
             @RequestParam("description") String description
     ) throws IOException {
         try {
-            postService.upload(file, userhandle, password, description);
+            postService.upload(file, userhandle, description);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -76,18 +81,41 @@ public class PostController {
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity deletePost(
-            @RequestParam("searchTitle") String searchTitle,
-            @RequestParam("password") String password
+    @PutMapping("/update/searchTitle/{searchTitle}/post")
+    public ResponseEntity<PostResponseModel> updateUser(
+            @PathVariable String searchTitle,
+            @RequestBody PostRequestModel postRequetsModel
     ){
         try{
-            postService.deleteBySearchTitle(searchTitle, password);
+            Post post = postService.fingBySearchTitle(searchTitle);
+
+            this.postMapper.updateEntityFromRequestModel(postRequetsModel, post);
+
+            Post upPost =
+                    this.postService.updatePost(post);
+
+            return ResponseEntity.ok(
+                    this.postMapper.entityToResponseModel(upPost)
+            );
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity deletePost(
+            @RequestParam("searchTitle") String searchTitle
+    ){
+        try{
+            postService.deleteBySearchTitle(searchTitle);
             return ResponseEntity.noContent().build();
         }catch(EntityNotFoundException | IOException e){
             return ResponseEntity.notFound().build();
         }
     }
+
+
 
 
 }

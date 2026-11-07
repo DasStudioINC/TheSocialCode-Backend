@@ -384,7 +384,7 @@ public class PostService implements PostServiceInterface{
     }
 
     @Override
-    public void upload(MultipartFile file, String userhandle, String password, String description) throws IOException {
+    public void upload(MultipartFile file, String userhandle, String description) throws IOException {
 
         if(userhandle.isEmpty() || userhandle == null)
             throw new IOException("userhandle cannot be empty");
@@ -413,8 +413,6 @@ public class PostService implements PostServiceInterface{
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You Cannot Upload a file bigger than 40 mb on The Max Subscription");
             }
         }
-        if(!user.getUserInfo().getPassword().equals(password))
-            throw new IOException("Invalid password");
 
 
         if(file.isEmpty())
@@ -570,36 +568,34 @@ public class PostService implements PostServiceInterface{
     }
 
     @Override
-    public void deleteBySearchTitle(String searchTitle, String password) throws IOException {
+    public void deleteBySearchTitle(String searchTitle) throws IOException {
         Post post = postRepository.findBySearchTitle(searchTitle);
         if(post == null) throw  new EntityNotFoundException("Post not found");
         User user = userService.getUserByUserHandle(post.getUserHandle());
         if(user == null) throw new EntityNotFoundException("User not found");
-        if(user.getUserInfo().getPassword().equals(password)){
-            File folder = new File(STORAGE_PATH + "/" + user.getUserHandle().getUserHandle() + "/post#" + post.getPostNumber());
+        File folder = new File(STORAGE_PATH + "/" + user.getUserHandle().getUserHandle() + "/post#" + post.getPostNumber());
 
-            System.out.println(
-                    "file: " + post.getPostDirectories().getPostPath() + "\n" +
-                            "interaction: " + post.getPostDirectories().getInteractionPath() + "\n" +
-                            "post: " + folder
-            );
-//            Files.delete(Paths.get(post.getPostDirectories().getPostPath()).toAbsolutePath());
-//            Files.delete(Paths.get(post.getPostDirectories().getInteractionPath()).toAbsolutePath());
-//            Files.delete(Paths.get(folder.toURI()).toAbsolutePath());
-            // Fix the method name spelling: deleteRecursively instead of deleteRecursivley
+        System.out.println(
+                "file: " + post.getPostDirectories().getPostPath() + "\n" +
+                        "interaction: " + post.getPostDirectories().getInteractionPath() + "\n" +
+                        "post: " + folder
+        );
 
 
-            if (folder.exists()) {
-                boolean deleted = FileSystemUtils.deleteRecursively(folder);
-                if (!deleted) {
-                    throw new IOException("Could not delete the post directory.");
-                }
+
+        if (folder.exists()) {
+            boolean deleted = FileSystemUtils.deleteRecursively(folder);
+            if (!deleted) {
+                throw new IOException("Could not delete the post directory.");
             }
-            this.postRepository.deleteBySearchTitle(searchTitle);
-            user.getAccountData().setPostCount(user.getAccountData().getPostCount() - 1);
-            userService.save(user);
-
         }
+        this.postRepository.deleteBySearchTitle(searchTitle);
+        user.getAccountData().setPostCount(user.getAccountData().getPostCount() - 1);
+        userService.save(user);
+    }
+
+    public Post updatePost(Post existingPost){
+        return postRepository.save(existingPost);
     }
 }
 

@@ -21,9 +21,9 @@ public interface PostServiceInterface {
     public List<Post> findByUserHandle(String userhandle, int index);
     public Post fingBySearchTitle(String searchTitle);
 
-    void upload(MultipartFile file, String userhandle, String password, String description) throws IOException;
+    void upload(MultipartFile file, String userhandle, String description) throws IOException;
 
     void save(Post post);
 
-    void deleteBySearchTitle(String searchTitle, String password) throws IOException;
+    void deleteBySearchTitle(String searchTitle) throws IOException;
 }
