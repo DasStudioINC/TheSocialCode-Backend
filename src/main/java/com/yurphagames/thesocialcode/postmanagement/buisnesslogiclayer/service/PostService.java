@@ -549,8 +549,8 @@ public class PostService implements PostServiceInterface{
     private void compress(Path in, Path out) throws Exception{
         // Create instances of the FFmpeg tools that I need to
         // use to create a compression system
-        FFmpeg ffmpeg = new FFmpeg("tools/ffmpeg/bin/ffmpeg.exe");
-        FFprobe ffprobe = new FFprobe("tools/ffmpeg/bin/ffprobe.exe");
+        FFmpeg ffmpeg = new FFmpeg("C:/ffmpeg/bin/ffmpeg.exe");
+        FFprobe ffprobe = new FFprobe("C:/ffmpeg/bin/ffprobe.exe");
 
         FFmpegBuilder builder = new FFmpegBuilder()
                 .setInput(in.toString())
