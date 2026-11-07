@@ -34,34 +34,34 @@ public class InteractionController {
 
     @PostMapping("/follow")
     public ResponseEntity<String> follow(
-            @RequestParam String interactedUserHandle,
-            @RequestParam String posterUserHandle
+            @RequestParam String iuh,
+            @RequestParam String puh
     ){
 
-        interactionService.Follow(interactedUserHandle, posterUserHandle);
+        interactionService.Follow(iuh, puh);
 
         return ResponseEntity.ok("User follow task success");
     }
 
     @PostMapping("/like")
     public ResponseEntity<String> like(
-            @RequestParam String interactedUserHandle,
-            @RequestParam String posterUserHandle,
+            @RequestParam String iuh,
+            @RequestParam String puh,
             @RequestParam String searchTitle
     ){
-        interactionService.Like(interactedUserHandle, posterUserHandle, searchTitle);
+        interactionService.Like(iuh, puh, searchTitle);
 
         return ResponseEntity.ok("Post like task success");
     }
 
     @PostMapping("/comment")
     public ResponseEntity<String> comment(
-            @RequestParam String interactedUserHandle,
-            @RequestParam String posterUserHandle,
+            @RequestParam String iuh,
+            @RequestParam String puh,
             @RequestParam String searchTitle,
             @RequestParam String comment
     ){
-        interactionService.Comment(interactedUserHandle, posterUserHandle, searchTitle, comment);
+        interactionService.Comment(iuh, puh, searchTitle, comment);
         return ResponseEntity.ok("Comment task success");
     }
 
