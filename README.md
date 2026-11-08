@@ -6,6 +6,7 @@ I have multiple .md files so here is what they are for
 
 
 <h2>How To Run</h2>
+
 - LOCALLY
   - use this in the working directory | ./gradlew bootRun
   - Then you can use localhost:8080
