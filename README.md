@@ -3,8 +3,7 @@ Welcome to The Social Code backend repo.
 I have multiple .md files so here is what they are for
 1: README_SOURCES.md
   this is where you can find all my sources I used for the backend
-2: UNDERSTANDING.md
-  this is where I write how I use the sources in my backend
+
 
 
 
@@ -71,7 +70,7 @@ Endpoints:
 |:----------------------------------------------------------------|:------------------------------------------------------------------------------|
 | GET                                                             |
 | `/api/v1/interactions`                                          | Returns All interactions                                                      |
-| `/api/v1/interactions/filter/comments?searchTitle  `            | Returns The comments for that post with the searchTitle                       |
+| `/api/v1/interactions/filter/comments?searchTitle=  `           | Returns The comments for that post with the searchTitle                       |
 | POST                                                            |
 | `/api/v1/interactions/follow?iuh=&puh= `                        | Creates a new interaction of type follow to user with <br/> that user handle  |
 | `/api/v1/interactions/like?iuh=&puh=&searchTitle=`              | Creates a new interaction of type like to post with <br/> that search title   |

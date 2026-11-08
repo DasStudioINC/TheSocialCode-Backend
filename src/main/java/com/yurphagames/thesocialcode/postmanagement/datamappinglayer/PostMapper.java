@@ -66,7 +66,9 @@ public class PostMapper {
             @NotNull Post post
     ){
         post.setUserHandle(requestModel.getUserHandle());
+
         post.setPostData(new PostData(requestModel.getLikeCount(), requestModel.getViewCount(), requestModel.getPostName()));
+        post.getPostData().setDescription(requestModel.getDescription());
     }
 
 }
