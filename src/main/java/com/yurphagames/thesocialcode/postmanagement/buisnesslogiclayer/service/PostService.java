@@ -384,7 +384,7 @@ public class PostService implements PostServiceInterface{
     }
 
     @Override
-    public void upload(MultipartFile file, String userhandle, String description) throws IOException {
+    public void upload(MultipartFile file, String userhandle, String postname,String description) throws IOException {
 
         if(userhandle.isEmpty() || userhandle == null)
             throw new IOException("userhandle cannot be empty");
@@ -500,7 +500,7 @@ public class PostService implements PostServiceInterface{
 
 
 
-        SavePost(postNumber, userPostNumber, userhandle, finalPath.toString(),savedPath,org_filename, user, description);
+        SavePost(postNumber, userPostNumber, userhandle, finalPath.toString(),savedPath,postname.isEmpty() ? org_filename : postname, user, description);
 
     }
 

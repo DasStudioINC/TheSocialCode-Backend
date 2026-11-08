@@ -50,18 +50,18 @@ Endpoints:
 
 <h2>POST:</h2>
 
-| Endpoint                                               | What it's for                                                |
-|:-------------------------------------------------------|:-------------------------------------------------------------|
-| GET                                                    |
-| `/api/v1/posts`                                        | Returns All posts                                            |
-| `/api/v1/posts/filter?userhandle=&postname=&index=  `  | Returns The posts or post data with the information inserted |
-| `/api/v1/posts/search/{searchTitle}/post `             | Returns The post file with that search Title                 |
-| POST                                                   |
-| `/api/v1/posts/upload?file=&userhandle=&description=`  | Creates a new post                                           |
-| PUT                                                    |
-| `/api/v1/posts/update/searchTitle/{searchTitle}/post ` | Updates The post with that searchTitle                       |
-| DELETE                                                 |
-| `/api/v1/posts/delete?searchTitle= `                   | Deletes The post with that searchTitle                       |
+| Endpoint                                                        | What it's for                                                |
+|:----------------------------------------------------------------|:-------------------------------------------------------------|
+| GET                                                             |
+| `/api/v1/posts`                                                 | Returns All posts                                            |
+| `/api/v1/posts/filter?userhandle=&postname=&index=  `           | Returns The posts or post data with the information inserted |
+| `/api/v1/posts/search/{searchTitle}/post `                      | Returns The post file with that search Title                 |
+| POST                                                            |
+| `/api/v1/posts/upload?file=&userhandle=&postname=&description=` | Creates a new post                                           |
+| PUT                                                             |
+| `/api/v1/posts/update/searchTitle/{searchTitle}/post `          | Updates The post with that searchTitle                       |
+| DELETE                                                          |
+| `/api/v1/posts/delete?searchTitle= `                            | Deletes The post with that searchTitle                       |
 
 
 

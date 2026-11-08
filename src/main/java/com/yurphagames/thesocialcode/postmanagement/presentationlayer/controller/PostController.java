@@ -70,10 +70,11 @@ public class PostController {
     public ResponseEntity<String> uploadFile(
             @RequestPart(value = "file") MultipartFile file,
             @RequestParam("userhandle") String userhandle,
+            @RequestParam(value = "postname", defaultValue = "") String postname,
             @RequestParam("description") String description
     ) throws IOException {
         try {
-            postService.upload(file, userhandle, description);
+            postService.upload(file, userhandle, postname,description);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
