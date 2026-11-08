@@ -6,15 +6,15 @@ I have multiple .md files so here is what they are for
 
 
 <h2>How To Run</h2>
-- LOCALLY:
+- LOCALLY
   - use this in the working directory | ./gradlew bootRun
   - Then you can use localhost:8080
-- PUBLIC:
+- PUBLIC
   - no need to run a command just use this:
   - https://tsc-db.yurphagames.net
 
 
-
+The backend is hosted through self hosting method by using cloudflare
 
 
 
