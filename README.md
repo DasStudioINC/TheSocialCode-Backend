@@ -5,11 +5,15 @@ I have multiple .md files so here is what they are for
   this is where you can find all my sources I used for the backend
 
 
+<h2>How To Run</h2>
+- <h3>LOCALLY:</h3>
+  - run in project directory ./gradlew bootRun
+  - Then go to localhost:8080/api/v1/
+- <h3>PUBLIC:</h3>
+  - No need to start anything just go here
+  - https://tsc-db.yurphagames.net/api/v1/
+</br>
 
-
-
-To use locally you must use [localhost:8080/api/v1] or to reach the live backend
-you must use [tsc-db.yurphagames.net/api/v1]
 
 You may also need a ffmpeg and ffprobe to be installed on your machine </br>
 So I have 2 choices
