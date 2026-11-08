@@ -214,7 +214,7 @@ public class PostService implements PostServiceInterface{
             String finalPostname = postname;
             return convertPostsIntoSegments(getAll()).get(index)
                     .stream().filter(post ->
-                            getFileName(post.getPostDirectories().getPostPath())
+                            getFileName(post.getPostData().getPostName())
                                     .equals(finalPostname)
                     ).toList();
 
@@ -254,7 +254,7 @@ public class PostService implements PostServiceInterface{
         String finalPostname1 = postname;
         return postsByuserhandle.stream()
                 .filter(post ->
-                        getFileName(post.getPostDirectories().getPostPath())
+                        getFileName(post.getPostData().getPostName())
                                 .equals(finalPostname1)
                         ).toList();
 
