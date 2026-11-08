@@ -6,15 +6,19 @@ I have multiple .md files so here is what they are for
 
 
 <h2>How To Run</h2>
-- <h3>LOCALLY:</h3>
-  - run in project directory ./gradlew bootRun
-  - Then go to localhost:8080/api/v1/
-- <h3>PUBLIC:</h3>
-  - No need to start anything just go here
-  - https://tsc-db.yurphagames.net/api/v1/
+- LOCALLY:
+  - use this in the working directory | ./gradlew bootRun
+  - Then you can use localhost:8080
+- PUBLIC:
+  - no need to run a command just use this:
+  - https://tsc-db.yurphagames.net
 
 
 
+
+
+
+<h2 style="color:yellow">IMPORTANT</h2>
 
 You may also need a ffmpeg and ffprobe to be installed on your machine </br>
 So I have 2 choices
