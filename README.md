@@ -12,7 +12,8 @@ I have multiple .md files so here is what they are for
 - <h3>PUBLIC:</h3>
   - No need to start anything just go here
   - https://tsc-db.yurphagames.net/api/v1/
-</br>
+
+
 
 
 You may also need a ffmpeg and ffprobe to be installed on your machine </br>
