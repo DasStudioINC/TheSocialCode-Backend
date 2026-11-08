@@ -9,7 +9,7 @@ I have multiple .md files so here is what they are for
 
 - LOCALLY
   - use this in the working directory | ./gradlew bootRun
-  - Then you can use localhost:8080
+  - Then you can use https://localhost:8080
 - PUBLIC
   - no need to run a command just use this:
   - https://tsc-db.yurphagames.net
