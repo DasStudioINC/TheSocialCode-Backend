@@ -30,6 +30,9 @@
 1: https://stackoverflow.com/questions/20281835/how-to-delete-a-folder-with-files-using-java
 
 <h3 class="head">HOW TO CREATE A SERVER</h3>
+You first need a domain to do this so go to any domain registry to buy one i used <br>
+GoDaddy: https://www.godaddy.com/en-ca</br>
+You could also use squarespace: https://domains.squarespace.com/
 <p> winget install --id Cloudflare.cloudflared</p>
 <p> cloudflared tunnel login</p>
 <p> cloudflared tunnel create spring-db-tunnel</p>
