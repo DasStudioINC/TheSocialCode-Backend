@@ -1,6 +1,8 @@
 package com.yurphagames.thesocialcode.usermanagement.businesslogiclayer.service;
 
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.*;
+import com.yurphagames.thesocialcode.usermanagement.exceptions.DuplicateUserException;
+import com.yurphagames.thesocialcode.usermanagement.exceptions.UserNotFoundException;
 import com.yurphagames.thesocialcode.usermanagement.infrastructurelayer.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.core.io.InputStreamResource;
@@ -34,14 +36,14 @@ public class UserService implements UserServiceInterface{
     @Override
     public User getUserByUserHandle(String userhandle){
         return userRepository.findByUserHandle_userHandle(userhandle).orElseThrow(() ->
-                new RuntimeException("USER NOT FOUND: " + userhandle)
+                UserNotFoundException.forUserHandle(userhandle)
         );
     }
 
     @Override
     public User newUser(User user){
         if(userRepository.findByUserHandle_userHandle(user.getUserHandle().getUserHandle()).isPresent()){
-            throw new RuntimeException("User with that handle (" + user.getUserHandle().getUserHandle() + ")  already exits");
+            throw DuplicateUserException.forUserHandle(user.getUserHandle().getUserHandle());
         };
 
 
@@ -56,38 +58,31 @@ public class UserService implements UserServiceInterface{
 
     @Override
     public void setProfile(MultipartFile file, String userhandle) throws IOException {
-        try{
-            if(userhandle.isEmpty() || userhandle == null)
-                throw new IOException("userhandle cannot be empty");
 
-            User user;
+        if(userhandle.isEmpty())
+            throw new IOException("userhandle cannot be empty");
 
-            try{
-                user = getUserByUserHandle(userhandle);
-            }catch (RuntimeException e){
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-            }
-
-            if(file.isEmpty())
-                throw new IOException("Empty File");
+        User user;
+        user = getUserByUserHandle(userhandle);
 
 
-            Path folder = Paths.get("uploads").resolve(userhandle).resolve("user_profile").normalize();
-            if(!Files.exists(folder))
-                Files.createDirectories(folder);
+        if(file.isEmpty())
+            throw new IOException("Empty File");
 
-            String org_filename = file.getOriginalFilename();
 
-            Path finalPath = folder.resolve(org_filename);
+        Path folder = Paths.get("uploads").resolve(userhandle).resolve("user_profile").normalize();
+        if(!Files.exists(folder))
+            Files.createDirectories(folder);
 
-            Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
+        String org_filename = file.getOriginalFilename();
 
-            user.getProfilePicture().setPath_to_profile_picture(finalPath.toString());
-            System.out.println("\n\nUSER PROFILE PITURE: " + user.getProfilePicture().getPath_to_profile_picture());
-            userRepository.save(user);
-        }catch (IOException e){
-            throw new IOException("Store exception");
-        }
+        Path finalPath = folder.resolve(org_filename);
+
+        Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
+
+        user.getProfilePicture().setPath_to_profile_picture(finalPath.toString());
+        System.out.println("\n\nUSER PROFILE PITURE: " + user.getProfilePicture().getPath_to_profile_picture());
+        userRepository.save(user);
     }
 
     @Override
@@ -97,7 +92,7 @@ public class UserService implements UserServiceInterface{
 
     @Override
     public User Id(Integer id) {
-        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Could not find User with id : " + id));
+        return userRepository.findById(id).orElseThrow(() -> UserNotFoundException.forId(id));
     }
 
     @Override
@@ -113,14 +108,13 @@ public class UserService implements UserServiceInterface{
 
     @Override
     public void deleteById(Integer id){
-        if(!userRepository.existsById(id)) throw new EntityNotFoundException("User not found");
+        if(!userRepository.existsById(id)) throw UserNotFoundException.forId(id);
         this.userRepository.deleteById(id);
     }
 
     @Override
     public void deleteByUserHandle(String userhandle) {
-        Optional<User> user = userRepository.findByUserHandle_userHandle(userhandle);
-        if(user.isEmpty()) throw new EntityNotFoundException("User not found");
+        Optional<User> user = Optional.ofNullable(userRepository.findByUserHandle_userHandle(userhandle).orElseThrow(() -> UserNotFoundException.forUserHandle(userhandle)));
         deleteById(user.get().getId());
     }
 
@@ -131,7 +125,7 @@ public class UserService implements UserServiceInterface{
         User user = this.getUserByUserHandle(handle);
 
         if(user == null){
-            throw new EntityNotFoundException("User not found");
+            throw UserNotFoundException.forUserHandle(handle);
         }
 
         String path = user.getProfilePicture().getPath_to_profile_picture();

@@ -2,6 +2,9 @@ package com.yurphagames.thesocialcode.postmanagement.buisnesslogiclayer.service;
 
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.PostDirectories;
+import com.yurphagames.thesocialcode.postmanagement.exceptions.InvalidPostParam;
+import com.yurphagames.thesocialcode.postmanagement.exceptions.PostNotFoundExecption;
+import com.yurphagames.thesocialcode.postmanagement.exceptions.SubscriptionException;
 import com.yurphagames.thesocialcode.postmanagement.infrustructurelayer.repository.PostRepository;
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.SubscriptionType;
 import com.yurphagames.thesocialcode.usermanagement.domainlayer.User;
@@ -47,11 +50,8 @@ public class PostService implements PostServiceInterface{
     @Override
     public ResponseEntity<InputStreamResource> getBysearchTitle(String searchTitle){
         Post post = postRepository.findBySearchTitle(searchTitle);
+        if(post == null) throw PostNotFoundExecption.forSearchTitle(searchTitle);
 
-        if(post == null) throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Post not found"
-        );
 
         String path = post.getPostDirectories().getPostPath();
         System.out.println(path);
@@ -115,10 +115,7 @@ public class PostService implements PostServiceInterface{
     public ResponseEntity<InputStreamResource> getById(Long id){
         Post post = postRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Post not found"
-                        ));
+                        PostNotFoundExecption.forId(id));
 
         String path = post.getPostDirectories().getPostPath();
         System.out.println(path);
@@ -198,6 +195,7 @@ public class PostService implements PostServiceInterface{
         // unique values no other user can have that
         // but multiple users can have the same username
 
+
         if(userhandle.isEmpty()){
 
             // This is a check to see if both the userhandle & postname is empty
@@ -212,11 +210,10 @@ public class PostService implements PostServiceInterface{
             // have the postname given in the parameters
 
             String finalPostname = postname;
-            return convertPostsIntoSegments(getAll()).get(index)
-                    .stream().filter(post ->
-                            getFileName(post.getPostData().getPostName())
-                                    .equals(finalPostname)
-                    ).toList();
+            List<Post> list = getAll().stream().filter(post ->
+                    getFileName(post.getPostData().getPostName())
+                            .equals(finalPostname)).toList();
+            return convertPostsIntoSegments(list).get(index);
 
         }
 
@@ -278,7 +275,9 @@ public class PostService implements PostServiceInterface{
 
     @Override
     public Post fingBySearchTitle(String searchTitle) {
-        return postRepository.findBySearchTitle(searchTitle);
+        Post p = postRepository.findBySearchTitle(searchTitle);
+        if(p == null) throw PostNotFoundExecption.forSearchTitle(searchTitle);
+        return p;
     }
 
 
@@ -373,7 +372,7 @@ public class PostService implements PostServiceInterface{
             return "text/plain; charset=UTF-8";
         }
 
-        return MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        throw InvalidPostParam.forFileType(getExtension(postName));
     }
 
     private String getExtension(String fileName) {
@@ -386,16 +385,11 @@ public class PostService implements PostServiceInterface{
     @Override
     public void upload(MultipartFile file, String userhandle, String postname,String description) throws IOException {
 
-        if(userhandle.isEmpty() || userhandle == null)
-            throw new IOException("userhandle cannot be empty");
+        if(userhandle.isEmpty())
+            throw InvalidPostParam.forUserHandle();
 
-        User user;
+        User user = userService.getUserByUserHandle(userhandle);
 
-        try{
-            user = userService.getUserByUserHandle(userhandle);
-        }catch (RuntimeException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User could not be found");
-        }
 
         if(user.getSubscriptionType() == SubscriptionType.BASIC){
 
@@ -403,14 +397,14 @@ public class PostService implements PostServiceInterface{
             double kilobytes = (bytes / 1024);
             double megabytes = (kilobytes / 1024);
             if(megabytes > 10){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You Do Not Have The Correct Subscription To Upload A File Bigger Than 10 mb");
+                throw SubscriptionException.forBasic(megabytes);
             }
         }else{
             double bytes = file.getSize();
             double kilobytes = (bytes / 1024);
             double megabytes = (kilobytes / 1024);
             if(megabytes > 40){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You Cannot Upload a file bigger than 40 mb on The Max Subscription");
+                throw SubscriptionException.forPremium(megabytes);
             }
         }
 
@@ -570,9 +564,9 @@ public class PostService implements PostServiceInterface{
     @Override
     public void deleteBySearchTitle(String searchTitle) throws IOException {
         Post post = postRepository.findBySearchTitle(searchTitle);
-        if(post == null) throw  new EntityNotFoundException("Post not found");
+        if(post == null) throw PostNotFoundExecption.forSearchTitle(searchTitle);
         User user = userService.getUserByUserHandle(post.getUserHandle());
-        if(user == null) throw new EntityNotFoundException("User not found");
+        if(user == null) throw PostNotFoundExecption.forSearchTitle(searchTitle);
         File folder = new File(STORAGE_PATH + "/" + user.getUserHandle().getUserHandle() + "/post#" + post.getPostNumber());
 
         System.out.println(

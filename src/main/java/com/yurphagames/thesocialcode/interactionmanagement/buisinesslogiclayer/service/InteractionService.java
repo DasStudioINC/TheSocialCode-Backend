@@ -2,6 +2,7 @@ package com.yurphagames.thesocialcode.interactionmanagement.buisinesslogiclayer.
 
 import com.yurphagames.thesocialcode.interactionmanagement.domainlayer.Interaction;
 import com.yurphagames.thesocialcode.interactionmanagement.domainlayer.InteractionType;
+import com.yurphagames.thesocialcode.interactionmanagement.exceptions.InvalidParamException;
 import com.yurphagames.thesocialcode.interactionmanagement.infrustructurelayer.repository.InteractionRepository;
 import com.yurphagames.thesocialcode.postmanagement.domainlayer.Post;
 import com.yurphagames.thesocialcode.postmanagement.buisnesslogiclayer.service.PostService;
@@ -28,17 +29,13 @@ public class InteractionService implements InteractionServiceInterface{
 
     @Override
     public List<Interaction> getAll(){
-        if(interactionRepository.findAll().isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No interactions to get");
-        }
-
         return interactionRepository.findAll();
     }
 
     @Override
     public void Follow(String Iuserhandle, String Puserhandle){
         if(Iuserhandle == null || Iuserhandle.isEmpty() || Puserhandle == null || Puserhandle.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must input a userHandle for both interactor and poster");
+            throw InvalidParamException.forParam("user handle interacted, poster user handle");
 
         Iuserhandle = Iuserhandle.trim();
         User Iuser = userService.getUserByUserHandle(Iuserhandle);
@@ -54,7 +51,7 @@ public class InteractionService implements InteractionServiceInterface{
         // to follow yourself
 
         if(Iuserhandle.equals(Puserhandle))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot Follow Yourself");
+            throw InvalidParamException.forSelfInjection();
 
 
 
@@ -101,14 +98,13 @@ public class InteractionService implements InteractionServiceInterface{
         PsearchTitle = PsearchTitle.trim();
 
         if(Iuserhandle.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the interactor");
+            throw InvalidParamException.forParam("interaction user handle");
 
         if(Puserhandle.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the poster");
+            throw InvalidParamException.forParam("poster user handle");
 
         if(PsearchTitle.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a search Title");
-
+            throw InvalidParamException.forParam("searchTitle");
 
         Interaction interaction = interactionRepository.findByUserHandleInteractedAndUserHandlePosterAndType(Iuserhandle, Puserhandle, InteractionType.LIKE);
 
@@ -140,16 +136,16 @@ public class InteractionService implements InteractionServiceInterface{
         comment = comment.trim();
 
         if(Iuserhandle.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the interactor");
+            throw InvalidParamException.forParam("interaction user handle");
 
         if(Puserhandle.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a userHandle for the poster");
+            throw InvalidParamException.forParam("poster user handle");
 
         if(PsearchTitle.isEmpty())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must enter a search title");
+            throw InvalidParamException.forParam("searchTitle");
 
         if(comment.isEmpty())
-            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "You must give a comment to use this");
+            throw InvalidParamException.forParam("a comment");
 
 
 
@@ -164,7 +160,7 @@ public class InteractionService implements InteractionServiceInterface{
 
     @Override
     public List<Interaction> getAllBySearchTitle(String searchTitle) {
-        if(searchTitle.isEmpty()) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Search Title entered");
+        if(searchTitle.isEmpty()) throw InvalidParamException.forParam("searchTitle");
 
         Post post = postService.fingBySearchTitle(searchTitle);
         String userHandle = post.getUserHandle();
