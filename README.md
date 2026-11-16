@@ -33,7 +33,9 @@ So I have 2 choices
 - Option 2
   - Go to https://db-downloader.yurphagames.net
   - This comes all prepared with the tools already in the project and configured
-
+- Option 3
+  - Do option 1 but this one does not need the library's.
+  - git clone --branch exlib --single-branch https://github.com/DasStudioINC/TheSocialCode-Backend.git
 
 
 
