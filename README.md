@@ -23,7 +23,7 @@ The backend is hosted through self hosting method by using cloudflare
 <h2 style="color:yellow">IMPORTANT</h2>
 
 You may also need a ffmpeg and ffprobe to be installed on your machine </br>
-So I have 2 choices
+So I have 3 choices
 - Option 1
   - 1 Download through Github using
     - git clone https://github.com/DasStudioINC/TheSocialCode-Backend.git
@@ -33,7 +33,9 @@ So I have 2 choices
 - Option 2
   - Go to https://db-downloader.yurphagames.net
   - This comes all prepared with the tools already in the project and configured
-
+- Option 3
+  - Do option 1 but this one does not need the library's.
+  - git clone --branch exlib --single-branch https://github.com/DasStudioINC/TheSocialCode-Backend.git 
 
 
 

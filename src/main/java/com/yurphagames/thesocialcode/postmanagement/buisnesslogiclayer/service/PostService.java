@@ -469,7 +469,7 @@ public class PostService implements PostServiceInterface{
                     Files.copy(inputStream, tempIn, StandardCopyOption.REPLACE_EXISTING);
                 }
 
-                compress(tempIn, tempOut);
+                //compress(tempIn, tempOut);
 
                 // This is the check for seeing if the compression
                 // actually helped to make it smaller
